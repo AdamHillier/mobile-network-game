@@ -7,5 +7,7 @@ app.get('/', function (req, res) {
     res.sendFile(__dirname + '/game.html')
 });
 
-app.listen(8080);
-console.log('Listening on localhost::8080');
+var port = process.env.PORT || 8080
+app.listen(port, function () {
+    console.log('Listening on localhost::' + port);
+});
