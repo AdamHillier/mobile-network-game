@@ -1,0 +1,12 @@
+<query type="way">
+  <bbox-query s="51.75" w="-1.26" n="51.755" e="-1.25"/>
+  <has-kv k="highway" regv="."/>
+  <has-kv k="access" modv="not" regv="no"/>
+  <has-kv k="access" modv="not" regv="private"/>
+  <has-kv k="area" modv="not" regv="yes"/>
+</query>
+<union>
+  <item/>
+  <recurse type="down"/>
+</union>
+<print/>
