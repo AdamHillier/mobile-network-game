@@ -15,12 +15,21 @@
     var adjMap;
     var sprites;
     var startTime;
+    var towers;
+
+    var pendingActions = {
+        none: 0,
+        placeTower: 1
+    }
+    var currentPendingAction = pendingActions.none;
+    
 
     function initialise() {
         canvas = document.getElementById('myCanvas');
         context = canvas.getContext('2d');
         roadMap = new Image();
         sprites = new Array();
+        towers = new Array();
 
         // This is currently the only thing we're using JQuery for.
         // In the future we could in-line the JSON, allowing us to remove
@@ -46,10 +55,20 @@
             }
         }
 
-        // Start on mouse-down
-        canvas.onmousedown = function() {
-            window.requestAnimationFrame(gameLoop);
-        };
+        // click canvas currently only does one thing: place a tower
+        // but this can be extended to add other actions
+        canvas.onclick = function(event) {
+            if (currentPendingAction == pendingActions.placeTower){
+                var boundary = canvas.getBoundingClientRect();
+                var x = event.clientX - boundary.left;
+                var y = event.clientY - boundary.top;
+                towers.push(new Tower(new Position(x, y)));
+                currentPendingAction = pendingActions.none;
+                //after placing the tower, hide explanation
+                document.getElementById("explanation").style.display = "none"; 
+            };
+            
+        }
     }
 
     function gameLoop(timestamp) {
@@ -68,15 +87,11 @@
         context.clearRect(0,0,500,500);  // clear canvas
         context.drawImage(roadMap, 0,0); // redraw background
 
-        // Draw sprites
-        var radius = 5;
-        context.fillStyle = "#f00";
-        sprites.forEach(function (sprite) {
-            context.beginPath();
-            context.arc(sprite.pos.x, sprite.pos.y, radius, 0, Math.PI * 2, false);
-            context.fill();
-        });
+        drawSprites();
+        drawTowers();
     }
+
+    //Sprites
 
     function Sprite(prevNode, targetNode, pos) {
         this.previousNode = prevNode;
@@ -110,6 +125,34 @@
             this.targetNode = neighbours[randIndx];
         }
     }
+    function drawSprites(){
+        var radius = 5;
+        context.fillStyle = "#f00";
+        sprites.forEach(function (sprite) {
+            context.beginPath();
+            context.arc(sprite.pos.x, sprite.pos.y, radius, 0, Math.PI * 2, false);
+            context.fill();
+        });
+    }
+
+    //Towers
+
+    function Tower(pos) {
+        this.pos = pos;
+    };
+    function drawTowers(){
+        context.fillStyle = "blue";
+        towers.forEach(function(tower){
+            drawSingleTower(tower);
+        });
+    }
+    function drawSingleTower(tower) {
+        var size = 10;
+        var x = Math.max(tower.pos.x - size/2.0, 0)
+        var y = Math.max(tower.pos.y - size/2.0, 0)
+        context.fillRect(x, y, size, size);
+    };
+
 
     function Position(x, y) {
         this.x = x;
@@ -130,5 +173,28 @@
         return Math.floor(Math.random()*n);
     }
 
-    initialise();
+
+    //another place to use jquery
+    //make sure all DOMs are loaded before operating on them
+    $(document).ready(function(){
+
+        //bind button actions
+
+        var startGameButton = document.getElementById("startGame");
+        startGameButton.onclick = function() {
+            document.getElementById("placeTower").style.display = "inline"; //show button for placing tower
+            window.requestAnimationFrame(gameLoop);
+        };
+
+        var placeTowerButton = document.getElementById("placeTower");
+        placeTowerButton.onclick = function() {
+            currentPendingAction = pendingActions.placeTower;
+            document.getElementById("explanation").style.display = "inline"; //show explanation
+        };
+
+        //initialise game
+        initialise();
+
+    })
+    
 })();
