@@ -4,8 +4,8 @@
     // Game parameters
     var params = {
         numberOfSprites: 20,    // Initial sprite count
-        nodeEpsilon: 1.8,       // Radius in which a sprite has reached a node
-        spriteSpeed: 0.01       // Speed of sprites
+        nodeEpsilon: 1,       // Radius in which a sprite has reached a node
+        spriteSpeed: 0.005       // Speed of sprites
     }
 
     // 'Global' variables
@@ -91,6 +91,10 @@
         var angle = Math.atan2(dest.y-source.y, dest.x-source.x);
         var dy = Math.sin(angle) * ds;
         var dx = Math.cos(angle) * ds;
+
+        if (this.pos.distanceTo(dest) < ds) {
+          console.log("overstep");
+        }
 
         this.pos.x += dx;
         this.pos.y += dy;
