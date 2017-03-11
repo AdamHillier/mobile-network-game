@@ -34,13 +34,13 @@
         // This is currently the only thing we're using JQuery for.
         // In the future we could in-line the JSON, allowing us to remove
         // JQuery as a (heavy) dependency.
-        $.getJSON("adj_graph.json", function (data) {
+        $.getJSON("public/adj_graph.json", function (data) {
             adjMap = data;
             initialiseSprites();
         });
 
         // Initialise roadmap
-        roadMap.src = "static_map.svg";
+        roadMap.src = "public/static_map.svg";
         roadMap.onload = function() {
             context.drawImage(roadMap, 0,0);
         };
