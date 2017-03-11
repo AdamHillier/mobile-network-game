@@ -44,7 +44,7 @@
 				initialiseSprites();
 
         // Initialise roadmap
-        roadMap.src = "public/static_map.svg";
+        roadMap.src = "static_map.svg";
         roadMap.onload = function() {
             context.drawImage(roadMap, 0,0);
         };
