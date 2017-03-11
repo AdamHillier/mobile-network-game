@@ -2,23 +2,76 @@
 <meta charset="utf-8">
 <html>
   <head>
-    <style>
-      body {
-        margin: 0px;
-        padding: 0px;
-      }
-    </style>
+		<title>Mobile Network Game</title>
+		<style type="text/css">
+			* {
+				font-family: Calibri, sans-serif;
+				font-size: large;
+			}
+			
+			#explanation {
+				display: none;
+			}
+			
+			#noCall {
+				color: #f0f;
+			}
+			#dialing {
+				color: #0ff;
+			}
+			#callSuccess {
+				color: #0f0;
+			}
+			#callFailure {
+				color: #f00;
+			}
+			
+			.keySprite, h1 {
+				font-size: xx-large;
+			}
+			.keySprite {
+				line-height: 20px;
+				position: relative;
+				top: 4.5px;
+			}
+			#info {
+				float: right;
+			}
+			
+			h1 {
+				color: grey;
+				margin-right: 1em;
+			}
+		</style>
   </head>
   <body>
+		<div id="info">
+			<h1>
+				Group Design Project&mdash;Team 4
+			</h1>
+
+			<div id="key">
+				<h2>Sprite key</h2>
+				<div id="noCall"><span class="keySprite">•</span> Idle sprite</div>
+				<div id="dialing"><span class="keySprite">•</span> Sprite dialing...</div>
+				<div id="callSuccess"><span class="keySprite">•</span> Call succeeded :)</div>
+				<div id="callFailure"><span class="keySprite">•</span> Call failed :(</div>
+			</div>
+		</div>
+		
     <canvas id="myCanvas" width="500" height="500"></canvas>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script> -->
     <script type="text/javascript" src="public/game.js"></script> <!-- prefix public/ to view locally -->
+		<script type="text/javascript" src="public/adj_graph.js"></script>
 
     <div id="buttons">
       <button type="button" id="startGame"> start game </button>
       <button type="button" id="placeTower" style="display:none"> place tower </button>
     </div>
-    <div id="explanation" style="display:none">
+		
+		<div><p></div>
+		
+    <div id="explanation">
       <p>Click on map to place a tower.</p>
     </div>
 
