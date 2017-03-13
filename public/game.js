@@ -9,14 +9,20 @@
     };
 
     // 'Global' variables
-    var canvas;
     var svg;
+    var peopleGroup;
+    var towerGroup;
+    var rangeGroup;
+
+    var canvas;
     var context;
     var roadMap;
     var adjMap;
     var sprites;
     var startTime;
     var towers;
+
+    var towerRange = 50;
 
     var pendingActions = {
         none: 0,
@@ -35,7 +41,12 @@
 
     function initialise() {
         canvas = document.getElementById('myCanvas');
-        svg = document.getElementsByTagName('svg')[0];
+
+        svg = document.getElementById('map');
+        peopleGroup = document.getElementById('people-group');
+        towerGroup = document.getElementById('tower-group');
+        rangeGroup = document.getElementById('range-group');
+
         context = canvas.getContext('2d');
         roadMap = new Image();
         sprites = new Array();
@@ -61,12 +72,12 @@
 
                 var sprite = document.createElementNS("http://www.w3.org/2000/svg", "circle");
                 sprite.setAttribute("r", "5");
-                sprite.setAttribute("cx", getNodePosition(startNode).x + "");
-                sprite.setAttribute("cy", getNodePosition(startNode).y + "");
+                sprite.setAttribute("cx", getNodePosition(startNode).x);
+                sprite.setAttribute("cy", getNodePosition(startNode).y);
                 sprite.setAttribute("class", "person");
                 sprite.setAttribute("fill", "#f0f");
-                sprite.setAttribute("data-sprite-id", i + "");
-                svg.appendChild(sprite);
+                sprite.setAttribute("data-sprite-id", i);
+                peopleGroup.appendChild(sprite);
             }
         }
 
@@ -90,18 +101,26 @@
         				var towerWidth = 15;
         				var towerHeight = 15;
                 var boundary = svg.getBoundingClientRect();
-                var x = (event.clientX - boundary.left) - (towerWidth / 2.0);
-                var y = (event.clientY - boundary.top) - (towerHeight / 2.0);
+                // Calculate the centre of the tower
+                var cx = event.clientX - boundary.left;
+                var cy = event.clientY - boundary.top;
                 var tower = document.createElementNS("http://www.w3.org/2000/svg", "image");
                 tower.setAttribute("href", "tower.png");
-                tower.setAttribute("x", x + "");
-                tower.setAttribute("y", y + "");
+                tower.setAttribute("x", cx - (towerWidth / 2.0)); // Top left corner of the tower
+                tower.setAttribute("y", cy - (towerHeight / 2.0));
                 tower.setAttribute("width", "15");
                 tower.setAttribute("height", "15");
-                svg.appendChild(tower);
+                towerGroup.appendChild(tower); // Important to append (rather than prepend) so that towers are drawn over people
                 currentPendingAction = pendingActions.none;
                 //after placing the tower, hide explanation
-                document.getElementById("explanation").style.display = "none"; 
+                document.getElementById("explanation").style.display = "none";
+
+                var range = document.createElementNS("http://www.w3.org/2000/svg", "circle"); // A circle indicating the geographical range covered by the tower
+                range.setAttribute("r", towerRange);
+                range.setAttribute("cx", cx);
+                range.setAttribute("cy", cy);
+                range.setAttribute("class", "range-indicator");
+                rangeGroup.appendChild(range);
             };
         }
     }
