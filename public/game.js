@@ -84,6 +84,22 @@
             };
             
         }
+
+        svg.onclick = function(event) {
+        		if (currentPendingAction === pendingActions.placeTower){
+                var boundary = svg.getBoundingClientRect();
+                var x = event.clientX - boundary.left;
+                var y = event.clientY - boundary.top;
+                var tower = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                tower.setAttribute("x", x + "");
+                tower.setAttribute("y", y + "");
+                tower.setAttribute("width", "15");
+                tower.setAttribute("height", "15");
+                tower.setAttribute("class", "tower");
+                svg.appendChild(tower);
+                currentPendingAction = pendingActions.none;
+            };
+        }
     }
 
     function gameLoop(timestamp) {
