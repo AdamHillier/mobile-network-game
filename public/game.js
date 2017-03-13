@@ -68,7 +68,6 @@
                 var startNode = randomIntBound(numberOfNodes);
                 var neighbours = adjMap["osm_adjacency"][startNode];
                 var randIndx = randomIntBound(neighbours.length);
-                sprites.push(new Sprite(i, startNode, neighbours[randIndx], getNodePosition(startNode)));
 
                 var sprite = document.createElementNS("http://www.w3.org/2000/svg", "circle");
                 sprite.setAttribute("r", "5");
@@ -76,8 +75,10 @@
                 sprite.setAttribute("cy", getNodePosition(startNode).y);
                 sprite.setAttribute("class", "person");
                 sprite.setAttribute("fill", "#f0f");
-                sprite.setAttribute("data-sprite-id", i);
+                sprite.setAttribute("data-sprite-id", i); // Might be redundant, but should be useful for debugging
                 peopleGroup.appendChild(sprite);
+
+                sprites.push(new Sprite(i, startNode, neighbours[randIndx], getNodePosition(startNode), sprite));
             }
         }
 
@@ -110,7 +111,7 @@
                 tower.setAttribute("y", cy - (towerHeight / 2.0));
                 tower.setAttribute("width", "15");
                 tower.setAttribute("height", "15");
-                towerGroup.appendChild(tower); // Important to append (rather than prepend) so that towers are drawn over people
+                towerGroup.appendChild(tower);
                 currentPendingAction = pendingActions.none;
                 //after placing the tower, hide explanation
                 document.getElementById("explanation").style.display = "none";
@@ -147,12 +148,13 @@
 
     //Sprites
 
-    function Sprite(id, prevNode, targetNode, pos) {
-    		this.id = id;
+    function Sprite(id, prevNode, targetNode, pos, elem) {
+    		this.id = id; // Might end up being redundant, but should be useful for debugging at least
         this.previousNode = prevNode;
         this.targetNode = targetNode;
         this.pos = pos;
 				this.callStatus = spriteCallStatus.none;
+				this.elem = elem; // The SVG element representing the sprite
     }
     Sprite.prototype.update = function (tFrame) {
 			  // if sprite is idle, maybe place a call
@@ -188,6 +190,11 @@
             }
             this.targetNode = neighbours[randIndx];
         }
+
+        // Update sprite position and colour
+        this.elem.setAttribute("cx", this.pos.x);
+        this.elem.setAttribute("cy", this.pos.y);
+        this.elem.setAttribute("fill", this.callStatus);
 				
 				function placeCallMaybe(sprite) {
 					var callProbabilityPerUpdate = 1/3000;
@@ -215,6 +222,7 @@
 				}
 				
     };
+
     function drawSprites(){
         var radius = 5;
         sprites.forEach(function (sprite) {
@@ -222,13 +230,9 @@
             context.arc(sprite.pos.x, sprite.pos.y, radius, 0, Math.PI * 2, false);
 						context.fillStyle = sprite.callStatus;
             context.fill();
-
-            var person = $(".person[data-sprite-id='" + sprite.id + "']")[0];
-            person.setAttribute("cx", sprite.pos.x);
-            person.setAttribute("cy", sprite.pos.y);
-            person.setAttribute("fill", sprite.callStatus);
         });
     }
+
 
     //Towers
 
