@@ -87,17 +87,21 @@
 
         svg.onclick = function(event) {
         		if (currentPendingAction === pendingActions.placeTower){
+        				var towerWidth = 15;
+        				var towerHeight = 15;
                 var boundary = svg.getBoundingClientRect();
-                var x = event.clientX - boundary.left;
-                var y = event.clientY - boundary.top;
-                var tower = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                var x = (event.clientX - boundary.left) - (towerWidth / 2.0);
+                var y = (event.clientY - boundary.top) - (towerHeight / 2.0);
+                var tower = document.createElementNS("http://www.w3.org/2000/svg", "image");
+                tower.setAttribute("href", "tower.png");
                 tower.setAttribute("x", x + "");
                 tower.setAttribute("y", y + "");
                 tower.setAttribute("width", "15");
                 tower.setAttribute("height", "15");
-                tower.setAttribute("class", "tower");
                 svg.appendChild(tower);
                 currentPendingAction = pendingActions.none;
+                //after placing the tower, hide explanation
+                document.getElementById("explanation").style.display = "none"; 
             };
         }
     }
