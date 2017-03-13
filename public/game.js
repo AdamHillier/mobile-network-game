@@ -18,11 +18,13 @@
     var context;
     var roadMap;
     var adjMap;
+
     var sprites;
     var startTime;
-    var towers;
 
-    var towerRange = 50;
+    var towers;
+    var TOWER_RANGE = 50;
+    var MAX_LOAD = 1; // Maximum number of calls each tower can handle simultaneously
 
     var pendingActions = {
         none: 0,
@@ -89,7 +91,7 @@
                 var boundary = canvas.getBoundingClientRect();
                 var x = event.clientX - boundary.left;
                 var y = event.clientY - boundary.top;
-                towers.push(new Tower(new Position(x, y)));
+                towers.push(new Tower(towers.length, new Position(x, y)));
                 currentPendingAction = pendingActions.none;
                 //after placing the tower, hide explanation
                 document.getElementById("explanation").style.display = "none"; 
@@ -111,13 +113,16 @@
                 tower.setAttribute("y", cy - (towerHeight / 2.0));
                 tower.setAttribute("width", "15");
                 tower.setAttribute("height", "15");
-                towerGroup.appendChild(tower);
+                var towerId = towers.length;
+                tower.setAttribute("data-tower-id", towerId);
+                towerGroup.appendChild(tower); // Add the tower to the map
+                towers.push(new Tower(towerId, new Position(cx, cy))); // Store the new tower
                 currentPendingAction = pendingActions.none;
                 //after placing the tower, hide explanation
                 document.getElementById("explanation").style.display = "none";
 
                 var range = document.createElementNS("http://www.w3.org/2000/svg", "circle"); // A circle indicating the geographical range covered by the tower
-                range.setAttribute("r", towerRange);
+                range.setAttribute("r", TOWER_RANGE);
                 range.setAttribute("cx", cx);
                 range.setAttribute("cy", cy);
                 range.setAttribute("class", "range-indicator");
@@ -134,7 +139,7 @@
         // Call update on each sprite
         sprites.forEach(function (sprite) { sprite.update(elapsed); });
 
-        render();
+        render(); // Only needed for the canvas
         window.requestAnimationFrame(gameLoop);
     }
 
@@ -209,20 +214,32 @@
 						}, 50);
 						setTimeout(function () {
 							clearInterval(ringRing);
-							if (randomIntBound(2) < 1) {
+							if (handleCall(sprite)) {
 								sprite.callStatus = spriteCallStatus.success;
 							} else {
 								sprite.callStatus = spriteCallStatus.failure;
 							}
 						}, callDuration/3);
 						setTimeout(function () {
+							// If callStatus is success then here we will want to decrement the load of the appropriate tower
 							sprite.callStatus = spriteCallStatus.none;
 						}, callDuration);
+					}
+
+					function handleCall(sprite) {
+						for(let tower of towers) {
+							if ((sprite.pos.distanceTo(tower.pos) < TOWER_RANGE) && (tower.load < MAX_LOAD)) { // If the sprite is in range of this tower
+								// Increment tower.load here (once we implement a way of decrementing when the call finishes--presumably the sprite will have to make a note of which tower it's using)
+								return true;
+							}
+						}
+						return false;
 					}
 				}
 				
     };
 
+    // Only needed for the canvas
     function drawSprites(){
         var radius = 5;
         sprites.forEach(function (sprite) {
@@ -236,9 +253,13 @@
 
     //Towers
 
-    function Tower(pos) {
+    function Tower(id, pos) {
+    		this.id = id; // May be useful for debugging
         this.pos = pos;
+        this.load = 0; // Towers are initially handling 0 simultaneous calls
     };
+
+    // These two functions are only needed for the canvas
     function drawTowers(){
         context.fillStyle = "cyan";
         towers.forEach(function(tower){
