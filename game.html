@@ -42,6 +42,18 @@
 				color: grey;
 				margin-right: 1em;
 			}
+
+			svg {
+				width:500px;
+				height:500px;
+				background-image:url('static_map.svg');
+				background-repeat:no-repeat;
+				border:1px solid #000000;
+			}
+
+			.person {
+				//fill: #f0f;
+			}
 		</style>
   </head>
   <body>
@@ -60,7 +72,8 @@
 		</div>
 		
     <canvas id="myCanvas" width="500" height="500"></canvas>
-    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script> -->
+    <svg xmlns="http://www.w3.org/2000/svg" version="1.1"></svg>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script type="text/javascript" src="game.js"></script> <!-- prefix public/ to view locally -->
 		<script type="text/javascript" src="adj_graph.js"></script>
 

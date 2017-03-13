@@ -10,6 +10,7 @@
 
     // 'Global' variables
     var canvas;
+    var svg;
     var context;
     var roadMap;
     var adjMap;
@@ -34,6 +35,7 @@
 
     function initialise() {
         canvas = document.getElementById('myCanvas');
+        svg = document.getElementsByTagName('svg')[0];
         context = canvas.getContext('2d');
         roadMap = new Image();
         sprites = new Array();
@@ -55,7 +57,16 @@
                 var startNode = randomIntBound(numberOfNodes);
                 var neighbours = adjMap["osm_adjacency"][startNode];
                 var randIndx = randomIntBound(neighbours.length);
-                sprites.push(new Sprite(startNode, neighbours[randIndx], getNodePosition(startNode)));
+                sprites.push(new Sprite(i, startNode, neighbours[randIndx], getNodePosition(startNode)));
+
+                var sprite = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                sprite.setAttribute("r", "5");
+                sprite.setAttribute("cx", getNodePosition(startNode).x + "");
+                sprite.setAttribute("cy", getNodePosition(startNode).y + "");
+                sprite.setAttribute("class", "person");
+                sprite.setAttribute("fill", "#f0f");
+                sprite.setAttribute("data-sprite-id", i + "");
+                svg.appendChild(sprite);
             }
         }
 
@@ -97,7 +108,8 @@
 
     //Sprites
 
-    function Sprite(prevNode, targetNode, pos) {
+    function Sprite(id, prevNode, targetNode, pos) {
+    		this.id = id;
         this.previousNode = prevNode;
         this.targetNode = targetNode;
         this.pos = pos;
@@ -171,6 +183,11 @@
             context.arc(sprite.pos.x, sprite.pos.y, radius, 0, Math.PI * 2, false);
 						context.fillStyle = sprite.callStatus;
             context.fill();
+
+            var person = $(".person[data-sprite-id='" + sprite.id + "']")[0];
+            person.setAttribute("cx", sprite.pos.x);
+            person.setAttribute("cy", sprite.pos.y);
+            person.setAttribute("fill", sprite.callStatus);
         });
     }
 
