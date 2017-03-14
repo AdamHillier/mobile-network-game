@@ -14,6 +14,10 @@
     var towerGroup;
     var rangeGroup;
 
+    var DEF_WIDTH = 450; // Default width (in px) of the map background image (not the same as the SVG element's width)
+    var DEF_HEIGHT = 450;
+    var mapScaling = 1.0; // Map magnification--might we want to allow this to vary and enable zooming?
+
     var canvas;
     var context;
     var roadMap;
@@ -45,6 +49,11 @@
         canvas = document.getElementById('myCanvas');
 
         svg = document.getElementById('map');
+        var svgWidth = svg.width.baseVal.value; // Width (in px) of SVG element (we would like to be able to set the width here, but there seem to be some difficulties doing that)
+        var svgHeight = svg.height.baseVal.value;
+        svg.setAttribute("viewBox", "0 0 " + (svgWidth / mapScaling) + " " + (svgHeight / mapScaling)); // Zoom in on the top left corner
+        svg.style.backgroundSize = (mapScaling * DEF_WIDTH) + "px " + (mapScaling * DEF_HEIGHT) + "px"; // background-size:auto auto (the default) is DEF_WIDTH DEF_HEIGHT
+
         peopleGroup = document.getElementById('people-group');
         towerGroup = document.getElementById('tower-group');
         rangeGroup = document.getElementById('range-group');
@@ -104,15 +113,16 @@
         				var towerWidth = 15;
         				var towerHeight = 15;
                 var boundary = svg.getBoundingClientRect();
+                var viewBox = svg.viewBox.baseVal; // An object with the 4 values specifying the viewBox attribute (named x, y, width, height)
                 // Calculate the centre of the tower
-                var cx = event.clientX - boundary.left;
-                var cy = event.clientY - boundary.top;
+                var cx = viewBox.x + ((event.clientX - boundary.left) / mapScaling); // Convert screen units to user units
+                var cy = viewBox.y + ((event.clientY - boundary.top) / mapScaling);
                 var tower = document.createElementNS("http://www.w3.org/2000/svg", "image");
-                tower.setAttribute("href", "tower.png");
-                tower.setAttribute("x", cx - (towerWidth / 2.0)); // Top left corner of the tower
+                tower.setAttribute("href", "tower.svg");
+                tower.setAttribute("x", cx - (towerWidth / 2.0)); // Top left corner of the tower (towerWidth is in user units)
                 tower.setAttribute("y", cy - (towerHeight / 2.0));
-                tower.setAttribute("width", "15");
-                tower.setAttribute("height", "15");
+                tower.setAttribute("width", towerWidth);
+                tower.setAttribute("height", towerHeight);
                 var towerId = towers.length;
                 tower.setAttribute("data-tower-id", towerId);
                 towerGroup.appendChild(tower); // Add the tower to the map
