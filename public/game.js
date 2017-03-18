@@ -25,6 +25,7 @@
 
     var sprites;
     var startTime;
+		var lastMonthStart = 0;
 
     var towers;
     var TOWER_RANGE = 50;
@@ -44,6 +45,27 @@
 			failure: "#f00"
 		};
     
+		function initialiseSprites (n) {
+			var numberOfNodes = adjMap["osm_nodes"].length;
+			for (var i = 0; i < n; i++) {
+					var startNode = randomIntBound(numberOfNodes);
+					var neighbours = adjMap["osm_adjacency"][startNode];
+					var randIndx = randomIntBound(neighbours.length);
+
+					var sprite = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+					sprite.setAttribute("r", "5");
+					sprite.setAttribute("cx", getNodePosition(startNode).x);
+					sprite.setAttribute("cy", getNodePosition(startNode).y);
+					sprite.setAttribute("class", "person");
+					sprite.setAttribute("fill", "#f0f");
+					sprite.setAttribute("data-sprite-id", i); // Might be redundant, but should be useful for debugging
+					peopleGroup.appendChild(sprite);
+
+					var id = { month: getMonth(), number: i };
+
+					sprites.push(new Sprite(id, startNode, neighbours[randIndx], getNodePosition(startNode), sprite));
+			}
+		}
 
     function initialise() {
         canvas = document.getElementById('myCanvas');
@@ -65,33 +87,13 @@
 
         // Previously with JQuery, now inline in adj_graph.js
 				adjMap = ADJ_GRAPH;
-				initialiseSprites();
+				initialiseSprites(params.numberOfSprites);
 
         // Initialise roadmap
-        roadMap.src = "public/static_map.svg";
+        roadMap.src = "static_map.svg";
         roadMap.onload = function() {
             context.drawImage(roadMap, 0,0);
         };
-
-        function initialiseSprites () {
-            var numberOfNodes = adjMap["osm_nodes"].length;
-            for (var i = 0; i < params.numberOfSprites; i++) {
-                var startNode = randomIntBound(numberOfNodes);
-                var neighbours = adjMap["osm_adjacency"][startNode];
-                var randIndx = randomIntBound(neighbours.length);
-
-                var sprite = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-                sprite.setAttribute("r", "5");
-                sprite.setAttribute("cx", getNodePosition(startNode).x);
-                sprite.setAttribute("cy", getNodePosition(startNode).y);
-                sprite.setAttribute("class", "person");
-                sprite.setAttribute("fill", "#f0f");
-                sprite.setAttribute("data-sprite-id", i); // Might be redundant, but should be useful for debugging
-                peopleGroup.appendChild(sprite);
-
-                sprites.push(new Sprite(i, startNode, neighbours[randIndx], getNodePosition(startNode), sprite));
-            }
-        }
 
         // click canvas currently only does one thing: place a tower
         // but this can be extended to add other actions
@@ -106,10 +108,10 @@
                 document.getElementById("explanation").style.display = "none"; 
             };
             
-        }
+        };
 
         svg.onclick = function(event) {
-        		if (currentPendingAction === pendingActions.placeTower){
+        		if (currentPendingAction === pendingActions.placeTower && (getBalance() >= 50)) {
         				var towerWidth = 15;
         				var towerHeight = 15;
                 var boundary = svg.getBoundingClientRect();
@@ -118,7 +120,7 @@
                 var cx = viewBox.x + ((event.clientX - boundary.left) / mapScaling); // Convert screen units to user units
                 var cy = viewBox.y + ((event.clientY - boundary.top) / mapScaling);
                 var tower = document.createElementNS("http://www.w3.org/2000/svg", "image");
-                tower.setAttribute("href", "public/tower.svg");
+                tower.setAttribute("href", "tower.svg");
                 tower.setAttribute("x", cx - (towerWidth / 2.0)); // Top left corner of the tower (towerWidth is in user units)
                 tower.setAttribute("y", cy - (towerHeight / 2.0));
                 tower.setAttribute("width", towerWidth);
@@ -137,6 +139,8 @@
                 range.setAttribute("cy", cy);
                 range.setAttribute("class", "range-indicator");
                 rangeGroup.appendChild(range);
+								
+								incrementBalance(-getTowerPrice());
             };
         }
     }
@@ -145,6 +149,12 @@
         if (!startTime) startTime = timestamp;
         var elapsed = timestamp - startTime;
         startTime = timestamp;
+				
+				if (timestamp-lastMonthStart > 10000) {
+					console.log("new month");
+					lastMonthStart = timestamp;
+					newMonth();
+				};
 
         // Call update on each sprite
         sprites.forEach(function (sprite) { sprite.update(elapsed); });
@@ -152,6 +162,12 @@
         render(); // Only needed for the canvas
         window.requestAnimationFrame(gameLoop);
     }
+		
+		function newMonth () {
+			incrementMonth(1);
+			initialiseSprites(getMonth());
+			incrementTowerPrice(5);
+		}
 
     function render() {
         context.clearRect(0,0,500,500);  // clear canvas
@@ -170,6 +186,7 @@
         this.pos = pos;
 				this.callStatus = spriteCallStatus.none;
 				this.elem = elem; // The SVG element representing the sprite
+				this.lastTower = null;
     }
     Sprite.prototype.update = function (tFrame) {
 			  // if sprite is idle, maybe place a call
@@ -232,17 +249,27 @@
 						}, callDuration/3);
 						setTimeout(function () {
 							// If callStatus is success then here we will want to decrement the load of the appropriate tower
+							if (sprite.lastTower !== null) {
+								sprite.lastTower.decrementLoad();
+								sprite.lastTower = null;
+							}
 							sprite.callStatus = spriteCallStatus.none;
 						}, callDuration);
 					}
 
 					function handleCall(sprite) {
 						for(let tower of towers) {
-							if ((sprite.pos.distanceTo(tower.pos) < TOWER_RANGE) && (tower.load < MAX_LOAD)) { // If the sprite is in range of this tower
+							if ((sprite.pos.distanceTo(tower.pos) < TOWER_RANGE) && (tower.load < MAX_LOAD)) {
+								// // If the sprite is in range of this tower
 								// Increment tower.load here (once we implement a way of decrementing when the call finishes--presumably the sprite will have to make a note of which tower it's using)
+								tower.incrementLoad();
+								sprite.lastTower = tower;
+								console.log(tower);
+								incrementBalance(10);
 								return true;
 							}
 						}
+						incrementBalance(-1);
 						return false;
 					}
 				}
@@ -268,6 +295,13 @@
         this.pos = pos;
         this.load = 0; // Towers are initially handling 0 simultaneous calls
     };
+		
+		Tower.prototype.incrementLoad = function() {
+			this.load++;
+		};
+		Tower.prototype.decrementLoad = function() {
+			this.load--;
+		};
 
     // These two functions are only needed for the canvas
     function drawTowers(){
@@ -295,6 +329,38 @@
         return Math.sqrt(dx*dx + dy*dy);
     }
 
+		// Budgetry
+		function getBalance() {
+			return parseInt(document.getElementById("balance").innerHTML);
+		}
+		function setBalance(newBalance) {
+			document.getElementById("balance").innerHTML = ""+newBalance;
+		}
+		function incrementBalance(by) {
+			setBalance(getBalance()+by);
+			if (getBalance() < 0) { document.getElementById("gameOver").style.display = "inline"; }
+		}
+		function getTowerPrice() {
+			return parseInt(document.getElementById("towerPrice").innerHTML);
+		}
+		function setTowerPrice(newPrice) {
+			document.getElementById("towerPrice").innerHTML = ""+newPrice;
+		}
+		function incrementTowerPrice(by) {
+			setTowerPrice(getTowerPrice()+by);
+		}
+		
+		// Timekeeping
+		function getMonth() {
+			return parseInt(document.getElementById("month").innerHTML);
+		}
+		function setMonth(newMonth) {
+			document.getElementById("month").innerHTML = ""+newMonth;
+		}
+		function incrementMonth(by) {
+			setMonth(getMonth()+by);
+		}
+
     // Helper methods
     function getNodePosition(n) {
         return new Position(adjMap["osm_nodes"][n][0], adjMap["osm_nodes"][n][1]);
@@ -311,6 +377,10 @@
         var startGameButton = document.getElementById("startGame");
         startGameButton.onclick = function() {
             document.getElementById("placeTower").style.display = "inline"; //show button for placing tower
+						setInterval(function(){
+							var timeSpan = document.getElementById("time");
+							timeSpan.innerHTML = parseInt(timeSpan.innerHTML)+1;
+						}, 1000);
             window.requestAnimationFrame(gameLoop);
         };
 
