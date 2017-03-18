@@ -68,7 +68,7 @@
 				initialiseSprites();
 
         // Initialise roadmap
-        roadMap.src = "static_map.svg";
+        roadMap.src = "public/static_map.svg";
         roadMap.onload = function() {
             context.drawImage(roadMap, 0,0);
         };
@@ -118,7 +118,7 @@
                 var cx = viewBox.x + ((event.clientX - boundary.left) / mapScaling); // Convert screen units to user units
                 var cy = viewBox.y + ((event.clientY - boundary.top) / mapScaling);
                 var tower = document.createElementNS("http://www.w3.org/2000/svg", "image");
-                tower.setAttribute("href", "tower.svg");
+                tower.setAttribute("href", "public/tower.svg");
                 tower.setAttribute("x", cx - (towerWidth / 2.0)); // Top left corner of the tower (towerWidth is in user units)
                 tower.setAttribute("y", cy - (towerHeight / 2.0));
                 tower.setAttribute("width", towerWidth);
