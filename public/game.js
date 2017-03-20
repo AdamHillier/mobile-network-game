@@ -153,7 +153,7 @@
 				if (timestamp-lastMonthStart > 10000) {
 					console.log("new month");
 					lastMonthStart = timestamp;
-					newMonth();
+					//newMonth();
 				};
 
         // Call update on each sprite
@@ -265,11 +265,11 @@
 								tower.incrementLoad();
 								sprite.lastTower = tower;
 								console.log(tower);
-								incrementBalance(10);
+								incrementBalance(5);
 								return true;
 							}
 						}
-						incrementBalance(-1);
+						incrementBalance(-2);
 						return false;
 					}
 				}

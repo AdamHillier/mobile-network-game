@@ -69,6 +69,10 @@
 			canvas {
 				display: none;
 			}
+			
+			.monthly {
+				display: none;
+			}
 		</style>
   </head>
   <body>
@@ -88,20 +92,20 @@
 			<h2>Price list:</h2>
 			<ul>
 				<li>Successful call: +5¤</li>
-				<li>Failed call: &ndash;1¤</li>
+				<li>Failed call: &ndash;2¤</li>
 				<li>Tower: <span id="towerPrice">50</span>¤</li>
 			</ul>
 			
 			<div id="blurb">
 				<p>Towers can only handle one call at a time.</p>
-				<p>Each month towers increase in price and more customers appear.</p>
+				<p class="monthly">Each month towers increase in price and more customers appear.</p>
 				<p>Objective: maximise your ¤.</p>
 			</div>
 			
 			<h2>Game status:</h2>
 			
 			<div id="balanceDisplay">Balance: <span id="balance">100</span>¤ <span id="gameOver">Game over!</span></div>
-			<div id="monthDisplay">Month: <span id="month">0</span></div>
+			<div id="monthDisplay" class="monthly">Month: <span id="month">0</span></div>
 			<div id="timeDisplay">Time elapsed: <span id="time">0</span> sec</div>
 		</div>
 		
