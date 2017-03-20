@@ -5,7 +5,9 @@
     var params = {
         numberOfSprites: 20,    // Initial sprite count
         nodeEpsilon: 1,       // Radius in which a sprite has reached a node
-        spriteSpeed: 0.005       // Speed of sprites
+        spriteSpeed: 0.005,      // Speed of sprites
+				callProbabilityPerUpdate: 1/3000,
+				callDuration: 5000 // in milliseconds
     };
 
     // 'Global' variables
@@ -37,7 +39,7 @@
     };
     var currentPendingAction = pendingActions.none;
 		
-		var windowLostFocus = false;
+		var isvisible = true;
 		
 		var spriteCallStatus = {
 			none: "#f0f",
@@ -148,22 +150,22 @@
     }
 
     function gameLoop(timestamp) {
-        if (!startTime) startTime = timestamp;
-        var elapsed = timestamp - startTime;
-        startTime = timestamp;
+				if (!startTime) startTime = timestamp;
+				var elapsed = timestamp - startTime;
+				startTime = timestamp;
+				
+				if (elapsed > 100) { elapsed = 16 } // hack!! elapsed is very long when tab comes from background in Chrome
 				
 				if (timestamp-lastMonthStart > 10000) {
 					console.log("new month");
 					lastMonthStart = timestamp;
 					//newMonth();
 				};
+				
+				// Call update on each sprite
+				sprites.forEach(function (sprite) { sprite.update(elapsed); } );
 
-        // Call update on each sprite
-        if (document.hasFocus()) {
-					sprites.forEach(function (sprite) { sprite.update(elapsed);
-				} ); }
-
-        render(); // Only needed for the canvas
+				render(); // Only needed for the canvas
         window.requestAnimationFrame(gameLoop);
     }
 		
@@ -233,9 +235,7 @@
         this.elem.setAttribute("fill", this.callStatus);
 				
 				function placeCallMaybe(sprite) {
-					var callProbabilityPerUpdate = 1/3000;
-					if (randomIntBound(1/callProbabilityPerUpdate) < 1) {
-						var callDuration = 5000;
+					if (randomIntBound(1/params.callProbabilityPerUpdate) < 1) {
 						var ringRing = setInterval(function () {
 							if (sprite.callStatus === spriteCallStatus.dialing) {
 								sprite.callStatus = spriteCallStatus.dialingPulse;
@@ -250,7 +250,7 @@
 							} else {
 								sprite.callStatus = spriteCallStatus.failure;
 							}
-						}, callDuration/3);
+						}, params.callDuration/3);
 						setTimeout(function () {
 							// If callStatus is success then here we will want to decrement the load of the appropriate tower
 							if (sprite.lastTower !== null) {
@@ -258,7 +258,7 @@
 								sprite.lastTower = null;
 							}
 							sprite.callStatus = spriteCallStatus.none;
-						}, callDuration);
+						}, params.callDuration);
 					}
 
 					function handleCall(sprite) {
@@ -376,7 +376,19 @@
 
     //another place to use jquery
     //make sure all DOMs are loaded before operating on them
-    document.addEventListener("DOMContentLoaded", function(){			
+    document.addEventListener("DOMContentLoaded", function(){		
+				// window visibility
+				var oldParams = JSON.parse(JSON.stringify(params));
+				window.onfocus = function() {
+					console.log("focus");
+					params = JSON.parse(JSON.stringify(oldParams));
+				};
+				window.onblur = function() {
+					console.log("blur");
+					params.spriteSpeed = 0;
+					params.callProbabilityPerUpdate = 0;
+				};
+			
         //bind button actions
         var startGameButton = document.getElementById("startGame");
         startGameButton.onclick = function() {
