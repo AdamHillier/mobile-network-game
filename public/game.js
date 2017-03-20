@@ -37,6 +37,8 @@
     };
     var currentPendingAction = pendingActions.none;
 		
+		var windowLostFocus = false;
+		
 		var spriteCallStatus = {
 			none: "#f0f",
 			dialing: "#0ff",
@@ -157,7 +159,9 @@
 				};
 
         // Call update on each sprite
-        sprites.forEach(function (sprite) { sprite.update(elapsed); });
+        if (document.hasFocus()) {
+					sprites.forEach(function (sprite) { sprite.update(elapsed);
+				} ); }
 
         render(); // Only needed for the canvas
         window.requestAnimationFrame(gameLoop);
@@ -372,7 +376,7 @@
 
     //another place to use jquery
     //make sure all DOMs are loaded before operating on them
-    document.addEventListener("DOMContentLoaded", function(){
+    document.addEventListener("DOMContentLoaded", function(){			
         //bind button actions
         var startGameButton = document.getElementById("startGame");
         startGameButton.onclick = function() {
@@ -389,6 +393,8 @@
             currentPendingAction = pendingActions.placeTower;
             document.getElementById("explanation").style.display = "inline"; //show explanation
         };
+				
+				
 				
 				// Blinking effect on "Sprite dialing..." key
 				setInterval(function () {
