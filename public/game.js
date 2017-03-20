@@ -6,8 +6,11 @@
         numberOfSprites: 20,    // Initial sprite count
         nodeEpsilon: 1,       // Radius in which a sprite has reached a node
         spriteSpeed: 0.005,      // Speed of sprites
+				spriteRadius: 5,
 				callProbabilityPerUpdate: 1/3000,
-				callDuration: 5000 // in milliseconds
+				callDuration: 5000, // in milliseconds
+				successCallCredit: 5,
+				failureCallCredit: -2
     };
 
     // 'Global' variables
@@ -39,8 +42,6 @@
     };
     var currentPendingAction = pendingActions.none;
 		
-		var isvisible = true;
-		
 		var spriteCallStatus = {
 			none: "#f0f",
 			dialing: "#0ff",
@@ -57,7 +58,7 @@
 					var randIndx = randomIntBound(neighbours.length);
 
 					var sprite = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-					sprite.setAttribute("r", "5");
+					sprite.setAttribute("r", ""+params.spriteRadius);
 					sprite.setAttribute("cx", getNodePosition(startNode).x);
 					sprite.setAttribute("cy", getNodePosition(startNode).y);
 					sprite.setAttribute("class", "person");
@@ -146,7 +147,7 @@
 								
 								incrementBalance(-getTowerPrice());
             };
-        }
+        };
     }
 
     function gameLoop(timestamp) {
@@ -154,7 +155,7 @@
 				var elapsed = timestamp - startTime;
 				startTime = timestamp;
 				
-				if (elapsed > 100) { elapsed = 16 } // hack!! elapsed is very long when tab comes from background in Chrome
+				if (elapsed > 100) { elapsed = 16; }; // hack!! elapsed is very long when tab comes from background in Chrome
 				
 				if (timestamp-lastMonthStart > 10000) {
 					console.log("new month");
@@ -269,11 +270,11 @@
 								tower.incrementLoad();
 								sprite.lastTower = tower;
 								console.log(tower);
-								incrementBalance(5);
+								incrementBalance(params.successCallCredit);
 								return true;
 							}
 						}
-						incrementBalance(-2);
+						incrementBalance(params.failureCallCredit);
 						return false;
 					}
 				}
@@ -282,7 +283,7 @@
 
     // Only needed for the canvas
     function drawSprites(){
-        var radius = 5;
+        var radius = params.spriteRadius;
         sprites.forEach(function (sprite) {
             context.beginPath();
             context.arc(sprite.pos.x, sprite.pos.y, radius, 0, Math.PI * 2, false);
@@ -331,7 +332,7 @@
         var dx = this.x - that.x;
         var dy = this.y - that.y;
         return Math.sqrt(dx*dx + dy*dy);
-    }
+    };
 
 		// Budgetry
 		function getBalance() {
@@ -378,7 +379,7 @@
     //make sure all DOMs are loaded before operating on them
     document.addEventListener("DOMContentLoaded", function(){		
 				// window visibility
-				var oldParams = JSON.parse(JSON.stringify(params));
+				var oldParams = JSON.parse(JSON.stringify(params)); // object clone
 				window.onfocus = function() {
 					console.log("focus");
 					params = JSON.parse(JSON.stringify(oldParams));
