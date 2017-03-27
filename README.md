@@ -1,7 +1,9 @@
 Installation
 ============
 
-Install Node.js, and NPM.
+Install Node.js, NPM, and Redis (for the backend).
+
+Run redis-server locally on the default port.
 
 Run `npm install` to install dependencies.
 
