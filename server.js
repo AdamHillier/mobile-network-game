@@ -10,7 +10,8 @@ var jsonParser = bodyParser.json();
     Configure database (Redis)
 *********************************/
 
-var client = redis.createClient();
+var redisUrl = process.env.REDIS_URL || '';
+var client = redis.createClient(redisUrl);
 
 client.on("error", function (err) {
     console.log("Redis error " + err);
