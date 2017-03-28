@@ -166,6 +166,9 @@
                 removeTempRange();
                 currentPendingAction = pendingActions.none;
 
+                //hide explanation regardless of balance
+                document.getElementById("explanation").style.display = "none";
+
                 if (getBalance() >= 50) { 
                     var towerWidth = 15;
                     var towerHeight = 15;
@@ -187,8 +190,6 @@
                     towerGroup.appendChild(tower); // Add the tower to the map
                     towers.push(new Tower(towerId, new Position(cx, cy))); // Store the new tower
                     
-                    //after placing the tower, hide explanation
-                    document.getElementById("explanation").style.display = "none";
 
                     var range = document.createElementNS("http://www.w3.org/2000/svg", "circle"); // A circle indicating the geographical range covered by the tower
                     range.setAttribute("r", TOWER_RANGE);
@@ -198,6 +199,17 @@
                     rangeGroup.appendChild(range);
                                     
                                     incrementBalance(-getTowerPrice());
+
+                }
+                else {
+                    //show message that there's not enough balance
+                    var balanceNotEnoughDiv = document.getElementById("balanceNotEnough");
+                    balanceNotEnoughDiv.style.display = "inline";
+
+                    //hide balanceNotEnough message after 2 seconds
+                    setTimeout(function(){ 
+                        balanceNotEnoughDiv.style.display = "none";
+                    }, 2000)
 
                 }
 
