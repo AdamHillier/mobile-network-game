@@ -9,6 +9,10 @@
 				font-size: large;
 			}
 			
+			#placeTower {
+				display: none;
+			}
+
 			#explanation {
 				display: none;
 			}
@@ -119,13 +123,13 @@
 
     <div id="buttons">
       <button type="button" id="startGame"> start game </button>
-      <button type="button" id="placeTower" style="display:none"> place tower </button>
+      <button type="button" id="placeTower"> place tower </button>
     </div>
 		
 		<div><p></div>
 		
     <div id="explanation">
-      <p>Click on map to place a tower.</p>
+      <p>Click on map to place a tower. <button type = "button" id="cancelPlacingTower">Cancel</button></p>
     </div>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>

@@ -115,40 +115,105 @@
             
         };
 
-        svg.onclick = function(event) {
-        		if (currentPendingAction === pendingActions.placeTower && (getBalance() >= 50)) {
-        				var towerWidth = 15;
-        				var towerHeight = 15;
-                var boundary = svg.getBoundingClientRect();
-                var viewBox = svg.viewBox.baseVal; // An object with the 4 values specifying the viewBox attribute (named x, y, width, height)
-                // Calculate the centre of the tower
-                var cx = viewBox.x + ((event.clientX - boundary.left) / mapScaling); // Convert screen units to user units
-                var cy = viewBox.y + ((event.clientY - boundary.top) / mapScaling);
-                var tower = document.createElementNS("http://www.w3.org/2000/svg", "image");
-                tower.setAttribute("href", "tower.svg");
-                tower.setAttribute("x", cx - (towerWidth / 2.0)); // Top left corner of the tower (towerWidth is in user units)
-                tower.setAttribute("y", cy - (towerHeight / 2.0));
-                tower.setAttribute("width", towerWidth);
-                tower.setAttribute("height", towerHeight);
-                var towerId = towers.length;
-                tower.setAttribute("data-tower-id", towerId);
-                towerGroup.appendChild(tower); // Add the tower to the map
-                towers.push(new Tower(towerId, new Position(cx, cy))); // Store the new tower
-                currentPendingAction = pendingActions.none;
-                //after placing the tower, hide explanation
-                document.getElementById("explanation").style.display = "none";
+        //get coordinates of the event
+        //used both in svg.onmousemove and svg.onclick
+        function getcxcy(event) {
+            var boundary = svg.getBoundingClientRect();
+            var viewBox = svg.viewBox.baseVal; // An object with the 4 values specifying the viewBox attribute (named x, y, width, height)
+            // Calculate the centre of the tower
+            var cx = viewBox.x + ((event.clientX - boundary.left) / mapScaling); // Convert screen units to user units
+            var cy = viewBox.y + ((event.clientY - boundary.top) / mapScaling);
 
-                var range = document.createElementNS("http://www.w3.org/2000/svg", "circle"); // A circle indicating the geographical range covered by the tower
-                range.setAttribute("r", TOWER_RANGE);
-                range.setAttribute("cx", cx);
-                range.setAttribute("cy", cy);
-                range.setAttribute("class", "range-indicator");
-                rangeGroup.appendChild(range);
-								
-								incrementBalance(-getTowerPrice());
+            return [cx, cy];
+        }
+
+        //show indication of range before atually putting down the tower
+        //range moves with mouse
+        svg.onmousemove = function(event) {
+            //check if player is going to place a tower
+            if (currentPendingAction === pendingActions.placeTower) {
+                //get cursor location
+                var cxcy = getcxcy(event);
+                var cx = cxcy[0];
+                var cy = cxcy[1];
+
+                //create temporary range indication if it's not already created
+                //note that this will be deleted when: (i) the tower is placed, OR (ii) the place-tower-action is cancelled
+                if (document.getElementById("tempRange") == null) {
+                    //temporary range not found, create one
+                    var range = document.createElementNS("http://www.w3.org/2000/svg", "circle"); // A circle indicating the geographical range covered by the tower
+                    range.setAttribute("r", TOWER_RANGE);
+                    range.setAttribute("class", "range-indicator");
+                    range.setAttribute("cx", cx);
+                    range.setAttribute("cy", cy);
+                    rangeGroup.appendChild(range);
+                    range.setAttribute("id", "tempRange");
+                }
+                else {
+                    var range = document.getElementById("tempRange");
+                    //update position 
+                    range.setAttribute("cx", cx);
+                    range.setAttribute("cy", cy);
+                }                
+            }
+
+        };
+
+
+        svg.onclick = function(event) {
+    		if (currentPendingAction === pendingActions.placeTower) {
+                //remove temporary range indication and change currentPendingAction regardless of balance
+                removeTempRange();
+                currentPendingAction = pendingActions.none;
+
+                if (getBalance() >= 50) { 
+                    var towerWidth = 15;
+                    var towerHeight = 15;
+
+                    //get cursor location
+                    //extracted out the function getcxcy because it's also used in svg.onmousemove
+                    var cxcy = getcxcy(event);
+                    var cx = cxcy[0];
+                    var cy = cxcy[1];
+
+                    var tower = document.createElementNS("http://www.w3.org/2000/svg", "image");
+                    tower.setAttribute("href", "tower.svg");
+                    tower.setAttribute("x", cx - (towerWidth / 2.0)); // Top left corner of the tower (towerWidth is in user units)
+                    tower.setAttribute("y", cy - (towerHeight / 2.0));
+                    tower.setAttribute("width", towerWidth);
+                    tower.setAttribute("height", towerHeight);
+                    var towerId = towers.length;
+                    tower.setAttribute("data-tower-id", towerId);
+                    towerGroup.appendChild(tower); // Add the tower to the map
+                    towers.push(new Tower(towerId, new Position(cx, cy))); // Store the new tower
+                    
+                    //after placing the tower, hide explanation
+                    document.getElementById("explanation").style.display = "none";
+
+                    var range = document.createElementNS("http://www.w3.org/2000/svg", "circle"); // A circle indicating the geographical range covered by the tower
+                    range.setAttribute("r", TOWER_RANGE);
+                    range.setAttribute("cx", cx);
+                    range.setAttribute("cy", cy);
+                    range.setAttribute("class", "range-indicator");
+                    rangeGroup.appendChild(range);
+                                    
+                                    incrementBalance(-getTowerPrice());
+
+                }
+
             };
         };
     }
+
+    //remove temporary range
+    //used both inside the function initialise(), and by the #cancelPlacingTower button
+    function removeTempRange(){
+        var parent = document.getElementById('range-group');
+        var child = document.getElementById('tempRange');
+        if (parent != null && child != null) {
+            parent.removeChild(child);
+        }
+    };
 
     function gameLoop(timestamp) {
 				if (!startTime) startTime = timestamp;
@@ -375,7 +440,6 @@
     }
 
 
-    //another place to use jquery
     //make sure all DOMs are loaded before operating on them
     document.addEventListener("DOMContentLoaded", function(){		
 				// window visibility
@@ -406,6 +470,14 @@
             currentPendingAction = pendingActions.placeTower;
             document.getElementById("explanation").style.display = "inline"; //show explanation
         };
+
+        var cancelPlacingTowerButton = document.getElementById("cancelPlacingTower");
+        cancelPlacingTowerButton.onclick = function(){
+            removeTempRange();
+            currentPendingAction = pendingActions.none;
+            //hide #explanation paragraph.
+            document.getElementById("explanation").style.display = "none";
+        }
 				
 				
 				
