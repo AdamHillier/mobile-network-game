@@ -72,6 +72,14 @@
 			}
 		}
 
+    var currentScreen = 0;
+    var lastDisplayedScreen = 0;
+    var START_SCREEN = 1;
+    var MAIN_GAME_SCREEN = 2;
+    var GAME_OVER_SCREEN = 3;
+    var toghrulsVariable;
+    var timer;
+
     function initialise() {
         canvas = document.getElementById('myCanvas');
 
@@ -240,11 +248,48 @@
 					//newMonth();
 				};
 				
-				// Call update on each sprite
-				sprites.forEach(function (sprite) { sprite.update(elapsed); } );
-
-				render(); // Only needed for the canvas
-        window.requestAnimationFrame(gameLoop);
+				switch (currentScreen) {
+					case START_SCREEN:
+						if (lastDisplayedScreen != START_SCREEN) {
+							toghrulsVariable = document.getElementById("map");
+							toghrulsVariable.style.filter = "blur(5px)";
+							lastDisplayedScreen = START_SCREEN; 
+						}
+						var startScreenSquare = document.getElementById("startScreen");
+						startScreenSquare.style.visibility = "visible";
+						document.getElementById("message").innerHTML = "Welcome to &quot;Mobile Network Game&quot;. The objective of the game is to have positive balance for\
+							as long as possible. Press the button to start the game.";
+						break;
+					case MAIN_GAME_SCREEN:	
+						if (lastDisplayedScreen == START_SCREEN) {
+							toghrulsVariable = document.getElementById("map");
+							toghrulsVariable.style.filter = "blur(0px)";
+							lastDisplayedScreen = MAIN_GAME_SCREEN;
+							var startScreenSquare = document.getElementById("startScreen");
+							startScreenSquare.style.visibility = "hidden"; 
+						}			
+						// Call update on each sprite
+						sprites.forEach(function (sprite) { sprite.update(elapsed); } );
+						if (getBalance() < 0) {
+							currentScreen = GAME_OVER_SCREEN;
+						}
+						render(); // Only needed for the canvas
+						break;
+					case GAME_OVER_SCREEN:
+						if (lastDisplayedScreen != GAME_OVER_SCREEN) {
+							toghrulsVariable = document.getElementById("map");
+							toghrulsVariable.style.filter = "blur(5px)";
+							lastDisplayedScreen = GAME_OVER_SCREEN; 
+							var timeSpan = document.getElementById("time");
+							var score = parseInt(timeSpan.innerHTML);
+							clearInterval(timer);
+						}
+						var endScreenSquare = document.getElementById("startScreen");
+						endScreenSquare.style.visibility = "visible";
+						document.getElementById("message").innerHTML = "Game over. Your network was functional for " + score.toString() + " seconds. Click the button below to start a new game (not working yet).";
+						break;
+				}
+        			window.requestAnimationFrame(gameLoop);
     }
 		
 		function newMonth () {
@@ -319,7 +364,7 @@
 								sprite.callStatus = spriteCallStatus.dialingPulse;
 							} else {
 								sprite.callStatus = spriteCallStatus.dialing;
-							}
+	f						}
 						}, 50);
 						setTimeout(function () {
 							clearInterval(ringRing);
@@ -470,10 +515,11 @@
         var startGameButton = document.getElementById("startGame");
         startGameButton.onclick = function() {
             document.getElementById("placeTower").style.display = "inline"; //show button for placing tower
-						setInterval(function(){
+						timer = setInterval(function(){
 							var timeSpan = document.getElementById("time");
 							timeSpan.innerHTML = parseInt(timeSpan.innerHTML)+1;
 						}, 1000);
+	    currentScreen = MAIN_GAME_SCREEN;
             window.requestAnimationFrame(gameLoop);
         };
 
@@ -505,6 +551,8 @@
 
         //initialise game
         initialise();
+	currentScreen = START_SCREEN;
+	window.requestAnimationFrame(gameLoop);
 
     });
     
