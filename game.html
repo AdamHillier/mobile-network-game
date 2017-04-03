@@ -102,6 +102,20 @@
 				display:block;
 				margin:0 auto;
 			}
+
+			circle.load-ring-background {
+				fill: transparent;
+				stroke: green;
+				stroke-width: 3px;
+			}
+
+			circle.load-ring-cover {
+				fill: transparent;
+				stroke: red;
+				stroke-width: 3px;
+			}
+
+
 		</style>
   </head>
   <body>
@@ -126,7 +140,7 @@
 			</ul>
 			
 			<div id="blurb">
-				<p>Towers can only handle one call at a time.</p>
+				<p>Towers can handle 3 calls at a time.</p>
 				<p class="monthly">Each month towers increase in price and more customers appear.</p>
 				<p>Objective: maximise your ¤.</p>
 			</div>
@@ -145,6 +159,7 @@
     	    <g id="people-group"></g>
     	    <g id="tower-group"></g>
     	    <g id="range-group"></g>
+    	    <g id="tower-load-group"></g>
         </svg>
         <div id="startScreen">
             <p id="message"></p>

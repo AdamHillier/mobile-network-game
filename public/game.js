@@ -18,6 +18,7 @@
     var peopleGroup;
     var towerGroup;
     var rangeGroup;
+    var towerLoadGroup
 
     var DEF_WIDTH = 450; // Default width (in px) of the map background image (not the same as the SVG element's width)
     var DEF_HEIGHT = 450;
@@ -33,8 +34,11 @@
 		var lastMonthStart = 0;
 
     var towers;
-    var TOWER_RANGE = 50;
-    var MAX_LOAD = 1; // Maximum number of calls each tower can handle simultaneously
+    var TOWER_RANGE = 150; //originally 50, changed to 250 to test and illustrate tower load indication
+    var MAX_LOAD = 3; // Maximum number of calls each tower can handle simultaneously
+
+    var TOWER_LOAD_VISUAL_RADIUS = 15
+    var TOWER_LOAD_VISUAL_CIRCUMFERENCE = 2 * Math.PI * TOWER_LOAD_VISUAL_RADIUS
 
     var pendingActions = {
         none: 0,
@@ -92,6 +96,7 @@
         peopleGroup = document.getElementById('people-group');
         towerGroup = document.getElementById('tower-group');
         rangeGroup = document.getElementById('range-group');
+        towerLoadGroup = document.getElementById('tower-load-group')
 
         context = canvas.getContext('2d');
         roadMap = new Image();
@@ -187,6 +192,7 @@
                     var cx = cxcy[0];
                     var cy = cxcy[1];
 
+                    //add tower
                     var tower = document.createElementNS("http://www.w3.org/2000/svg", "image");
                     tower.setAttribute("href", "tower.svg");
                     tower.setAttribute("x", cx - (towerWidth / 2.0)); // Top left corner of the tower (towerWidth is in user units)
@@ -198,13 +204,36 @@
                     towerGroup.appendChild(tower); // Add the tower to the map
                     towers.push(new Tower(towerId, new Position(cx, cy))); // Store the new tower
                     
-
+                    //add range indication
                     var range = document.createElementNS("http://www.w3.org/2000/svg", "circle"); // A circle indicating the geographical range covered by the tower
                     range.setAttribute("r", TOWER_RANGE);
                     range.setAttribute("cx", cx);
                     range.setAttribute("cy", cy);
                     range.setAttribute("class", "range-indicator");
                     rangeGroup.appendChild(range);
+
+                    //add tower-load indication
+                    //the ring of visualisation has 2 layers: a "backgroud" which is a full ring, and a "cover" which partially covers the background ring with another color.
+                    var loadRingBackground = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                    loadRingBackground.setAttribute("r", TOWER_LOAD_VISUAL_RADIUS);
+                    loadRingBackground.setAttribute("cx", cx);
+                    loadRingBackground.setAttribute("cy", cy);
+                    loadRingBackground.setAttribute("class", "load-ring-background");
+                    towerLoadGroup.appendChild(loadRingBackground);
+
+                    var loadRingCover = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                    loadRingCover.setAttribute("r", TOWER_LOAD_VISUAL_RADIUS);
+                    loadRingCover.setAttribute("cx", cx);
+                    loadRingCover.setAttribute("cy", cy);
+                    loadRingCover.setAttribute("class", "load-ring-cover");
+                    loadRingCover.setAttribute("id", "load-ring-cover" + towerId);
+                    //the "cover" ring is not a full ring, and is initialised to have zero length
+                    //after setting stroke-dasharray to be the circumference, we have the nice property that length_of_arc_shown = circle_circumference - stroke-dashoffset
+                    loadRingCover.setAttribute("stroke-dasharray", TOWER_LOAD_VISUAL_CIRCUMFERENCE) 
+                    loadRingCover.setAttribute("stroke-dashoffset", TOWER_LOAD_VISUAL_CIRCUMFERENCE)
+                    loadRingCover.setAttribute("transform", "rotate(270 " + cx + " " + cy + ")");
+                    towerLoadGroup.appendChild(loadRingCover);
+                    
                                     
                                     incrementBalance(-getTowerPrice());
 
@@ -364,7 +393,7 @@
 								sprite.callStatus = spriteCallStatus.dialingPulse;
 							} else {
 								sprite.callStatus = spriteCallStatus.dialing;
-	f						}
+							}
 						}, 50);
 						setTimeout(function () {
 							clearInterval(ringRing);
@@ -378,6 +407,10 @@
 							// If callStatus is success then here we will want to decrement the load of the appropriate tower
 							if (sprite.lastTower !== null) {
 								sprite.lastTower.decrementLoad();
+
+                                //update the tower load visual indication
+                                sprite.lastTower.updateLoadIndication();
+
 								sprite.lastTower = null;
 							}
 							sprite.callStatus = spriteCallStatus.none;
@@ -390,6 +423,10 @@
 								// // If the sprite is in range of this tower
 								// Increment tower.load here (once we implement a way of decrementing when the call finishes--presumably the sprite will have to make a note of which tower it's using)
 								tower.incrementLoad();
+
+                                //update the tower load visual indication
+                                tower.updateLoadIndication();
+
 								sprite.lastTower = tower;
 								console.log(tower);
 								incrementBalance(params.successCallCredit);
@@ -418,7 +455,7 @@
     //Towers
 
     function Tower(id, pos) {
-    		this.id = id; // May be useful for debugging
+		this.id = id; 
         this.pos = pos;
         this.load = 0; // Towers are initially handling 0 simultaneous calls
     };
@@ -429,6 +466,13 @@
 		Tower.prototype.decrementLoad = function() {
 			this.load--;
 		};
+
+    //Tower load indication
+    Tower.prototype.updateLoadIndication = function() {
+        var loadVisualCover = document.getElementById("load-ring-cover" + this.id);
+        var offset = TOWER_LOAD_VISUAL_CIRCUMFERENCE * (1 - this.load / MAX_LOAD);
+        loadVisualCover.setAttribute("stroke-dashoffset", offset)
+    }
 
     // These two functions are only needed for the canvas
     function drawTowers(){
