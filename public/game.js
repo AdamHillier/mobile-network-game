@@ -90,6 +90,7 @@
         svg = document.getElementById('map');
         var svgWidth = svg.width.baseVal.value; // Width (in px) of SVG element (we would like to be able to set the width here, but there seem to be some difficulties doing that)
         var svgHeight = svg.height.baseVal.value;
+        mapScaling = Math.min(svgWidth / DEF_WIDTH, svgHeight / DEF_HEIGHT); // Magnify the map as much as possible without cropping it
         svg.setAttribute("viewBox", "0 0 " + (svgWidth / mapScaling) + " " + (svgHeight / mapScaling)); // Zoom in on the top left corner
         svg.style.backgroundSize = (mapScaling * DEF_WIDTH) + "px " + (mapScaling * DEF_HEIGHT) + "px"; // background-size:auto auto (the default) is DEF_WIDTH DEF_HEIGHT
 
