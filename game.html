@@ -52,14 +52,6 @@
 				margin-right: 1em;
 			}
 
-			#map {
-				width:500px;
-				height:500px; /* Ideally these dimensions would be set in JavaScript or media queries based on screen size */
-				background-image:url('static_map.svg');
-				background-repeat:no-repeat;
-				border:1px solid #000000;
-			}
-
 			.range-indicator {
 				fill:#ff0000;
 				fill-opacity:0.2;
@@ -117,6 +109,7 @@
 
 
 		</style>
+		<link rel="stylesheet" type="text/css" href="style.css" />
   </head>
   <body>
 		<div id="info">
@@ -161,23 +154,24 @@
     	    <g id="range-group"></g>
     	    <g id="tower-load-group"></g>
         </svg>
-        <div id="startScreen">
-            <p id="message"></p>
-            <button type="button" id="startGame"> start game </button>
-        </div>
-        <div id="buttons">
-            <button type="button" id="placeTower"> place tower </button>
-        </div>
-    </div>
-		
-		<div><p></div>
-		
-    <div id="explanation">
-      <p>Click on map to place a tower. <button type = "button" id="cancelPlacingTower">Cancel</button></p>
     </div>
 
-    <div id="balanceNotEnough">
-    	<p>Your balance is not enough.</p>
+    <div id="action-bar">
+    		<div id="buttons">
+            <button type="button" id="placeTower"> place tower </button>
+        </div>
+
+		    <div id="explanation">
+		      <p>Click on map to place a tower. <button type = "button" id="cancelPlacingTower">Cancel</button></p>
+		    </div>
+		    <div id="balanceNotEnough">
+		    	<p>Your balance is not enough.</p>
+		    </div>
+		</div>
+
+    <div id="startScreen">
+        <p id="message"></p>
+        <button type="button" id="startGame"> start game </button>
     </div>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
