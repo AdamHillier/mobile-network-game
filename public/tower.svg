@@ -15,7 +15,7 @@
    id="svg4185"
    version="1.1"
    inkscape:version="0.91 r13725"
-   sodipodi:docname="tower1.svg">
+   sodipodi:docname="tower.svg">
   <defs
      id="defs4187" />
   <sodipodi:namedview
@@ -25,8 +25,8 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.8"
-     inkscape:cx="113.97409"
+     inkscape:zoom="0.98994949"
+     inkscape:cx="60.581233"
      inkscape:cy="56.650308"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -48,7 +48,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -58,26 +58,26 @@
      id="layer1"
      transform="translate(1686.3251,291.0941)">
     <path
-       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:10;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m -1578.7448,-174.95594 -47.4747,-73.57143 -46.8111,73.57143"
+       style="fill:none;fill-rule:evenodd;stroke:#d97300;stroke-width:10;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m -1578.7448,-174.95594 -42.4239,-65.99529 m -10.1016,0.50508 -41.7603,65.49021"
        id="path4154"
        inkscape:connector-curvature="0"
-       sodipodi:nodetypes="ccc" />
+       sodipodi:nodetypes="cccc" />
     <ellipse
-       style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:10;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="opacity:1;fill:none;fill-opacity:1;stroke:#d97300;stroke-width:10;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="path4158"
        cx="-1625.7142"
        cy="-256.30804"
        rx="15.684546"
        ry="15.684525" />
     <path
-       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:10;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:none;fill-rule:evenodd;stroke:#d97300;stroke-width:10;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="m -1655.1734,-204.24166 55.7143,0"
        id="path4160"
        inkscape:connector-curvature="0" />
     <path
        id="ellipse4162"
-       style="opacity:1;fill:none;fill-opacity:1;stroke:#000000;stroke-width:8;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="opacity:1;fill:none;fill-opacity:1;stroke:#d97300;stroke-width:8;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        sodipodi:type="arc"
        sodipodi:cx="-1625.7142"
        sodipodi:cy="-256.30804"
@@ -97,7 +97,7 @@
        sodipodi:cy="-256.30804"
        sodipodi:cx="-1625.7142"
        sodipodi:type="arc"
-       style="opacity:1;fill:none;fill-opacity:1;stroke:#000000;stroke-width:8;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="opacity:1;fill:none;fill-opacity:1;stroke:#d97300;stroke-width:8;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="path4164" />
     <path
        sodipodi:open="true"
@@ -109,11 +109,11 @@
        sodipodi:cy="-256.30804"
        sodipodi:cx="-1625.7142"
        sodipodi:type="arc"
-       style="opacity:1;fill:none;fill-opacity:1;stroke:#000000;stroke-width:8;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="opacity:1;fill:none;fill-opacity:1;stroke:#d97300;stroke-width:8;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="path4166" />
     <path
        id="path4168"
-       style="opacity:1;fill:none;fill-opacity:1;stroke:#000000;stroke-width:8;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="opacity:1;fill:none;fill-opacity:1;stroke:#d97300;stroke-width:8;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        sodipodi:type="arc"
        sodipodi:cx="-1625.7142"
        sodipodi:cy="-256.30804"

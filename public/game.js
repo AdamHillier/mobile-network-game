@@ -3,10 +3,10 @@
 (function () {
     // Game parameters
     var params = {
-        numberOfSprites: 20,    // Initial sprite count
+        numberOfSprites: 50,    // Initial sprite count
         nodeEpsilon: 1,       // Radius in which a sprite has reached a node
         spriteSpeed: 0.005,      // Speed of sprites
-				spriteRadius: 5,
+				spriteRadius: 3,
 				callProbabilityPerUpdate: 1/3000,
 				callDuration: 5000, // in milliseconds
 				successCallCredit: 5,
@@ -34,10 +34,12 @@
 		var lastMonthStart = 0;
 
     var towers;
-    var TOWER_RANGE = 150; //originally 50, changed to 250 to test and illustrate tower load indication
+    var TOWER_WIDTH = 12;
+    var TOWER_HEIGHT = 12;
+    var TOWER_RANGE = 80; //originally 50, changed to 250 to test and illustrate tower load indication
     var MAX_LOAD = 3; // Maximum number of calls each tower can handle simultaneously
 
-    var TOWER_LOAD_VISUAL_RADIUS = 15
+    var TOWER_LOAD_VISUAL_RADIUS = 12
     var TOWER_LOAD_VISUAL_CIRCUMFERENCE = 2 * Math.PI * TOWER_LOAD_VISUAL_RADIUS
 
     var pendingActions = {
@@ -47,9 +49,9 @@
     var currentPendingAction = pendingActions.none;
 		
 		var spriteCallStatus = {
-			none: "#f0f",
-			dialing: "#0ff",
-			dialingPulse: "#00f",
+			none: "#0167c4",
+			dialing: "#ff7795",
+			dialingPulse: "#783b77",
 			success: "#0f0",
 			failure: "#f00"
 		};
@@ -184,9 +186,6 @@
                 document.getElementById("explanation").style.display = "none";
 
                 if (getBalance() >= 50) { 
-                    var towerWidth = 15;
-                    var towerHeight = 15;
-
                     //get cursor location
                     //extracted out the function getcxcy because it's also used in svg.onmousemove
                     var cxcy = getcxcy(event);
@@ -196,10 +195,10 @@
                     //add tower
                     var tower = document.createElementNS("http://www.w3.org/2000/svg", "image");
                     tower.setAttribute("href", "tower.svg");
-                    tower.setAttribute("x", cx - (towerWidth / 2.0)); // Top left corner of the tower (towerWidth is in user units)
-                    tower.setAttribute("y", cy - (towerHeight / 2.0));
-                    tower.setAttribute("width", towerWidth);
-                    tower.setAttribute("height", towerHeight);
+                    tower.setAttribute("x", cx - (TOWER_WIDTH / 2.0)); // Top left corner of the tower (TOWER_WIDTH is in user units)
+                    tower.setAttribute("y", cy - (TOWER_HEIGHT / 2.0));
+                    tower.setAttribute("width", TOWER_WIDTH);
+                    tower.setAttribute("height", TOWER_HEIGHT);
                     var towerId = towers.length;
                     tower.setAttribute("data-tower-id", towerId);
                     towerGroup.appendChild(tower); // Add the tower to the map

@@ -4,6 +4,11 @@ html, body {
 	padding:0;
 }
 
+body {
+	background-color:#011829;
+	color:#003e77;
+}
+
 #container {
 	width:100%;
 	height:100%;
@@ -13,9 +18,39 @@ html, body {
 	display:block;
 	width:67%;
 	height:90%;
-	background-image:url('static_map.svg');
+	background-image:url('map.svg');
 	background-repeat:no-repeat;
 	border:1px solid #000000;
+}
+
+.range-indicator {
+	fill:#9b694a;
+	fill-opacity:0.07;
+}
+
+circle.load-ring-background {
+	fill: transparent;
+	stroke: rgba(239, 160, 0, 0.3);
+	stroke-width: 2px;
+}
+
+circle.load-ring-cover {
+	fill: transparent;
+	stroke: rgb(239, 160, 0);
+	stroke-width: 2px;
+}
+
+#noCall {
+	color: #0167c4;
+}
+#dialing {
+	color: #ff7299;
+}
+#callSuccess {
+	color: #0f0;
+}
+#callFailure {
+	color: #f00;
 }
 
 #action-bar {
