@@ -55,6 +55,9 @@
 			success: "#0f0",
 			failure: "#f00"
 		};
+
+    var placeTowerButton;
+    var cancelPlacingTowerButton;
     
 		function initialiseSprites (n) {
 			var numberOfNodes = adjMap["osm_nodes"].length;
@@ -178,12 +181,7 @@
 
         svg.onclick = function(event) {
     		if (currentPendingAction === pendingActions.placeTower) {
-                //remove temporary range indication and change currentPendingAction regardless of balance
-                removeTempRange();
-                currentPendingAction = pendingActions.none;
-
-                //hide explanation regardless of balance
-                document.getElementById("explanation").style.display = "none";
+                cancelPlacingTower();
 
                 if (getBalance() >= 50) { 
                     //get cursor location
@@ -252,6 +250,15 @@
 
             };
         };
+    }
+
+    function cancelPlacingTower() {
+        removeTempRange();
+        currentPendingAction = pendingActions.none;
+        cancelPlacingTowerButton.style.display = "none";
+        placeTowerButton.style.display = "inline";
+        //hide #explanation paragraph.
+        document.getElementById("explanation").style.display = "none";
     }
 
     //remove temporary range
@@ -567,21 +574,18 @@
             window.requestAnimationFrame(gameLoop);
         };
 
-        var placeTowerButton = document.getElementById("placeTower");
+
+        placeTowerButton = document.getElementById("placeTower");
+        cancelPlacingTowerButton = document.getElementById("cancelPlacingTower");
+
         placeTowerButton.onclick = function() {
             currentPendingAction = pendingActions.placeTower;
+            placeTowerButton.style.display = "none";
+            cancelPlacingTowerButton.style.display = "inline";
             document.getElementById("explanation").style.display = "inline"; //show explanation
         };
 
-        var cancelPlacingTowerButton = document.getElementById("cancelPlacingTower");
-        cancelPlacingTowerButton.onclick = function(){
-            removeTempRange();
-            currentPendingAction = pendingActions.none;
-            //hide #explanation paragraph.
-            document.getElementById("explanation").style.display = "none";
-        }
-				
-				
+        cancelPlacingTowerButton.onclick = cancelPlacingTower;
 				
 				// Blinking effect on "Sprite dialing..." key
 				setInterval(function () {

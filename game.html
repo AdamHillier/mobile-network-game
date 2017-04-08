@@ -4,21 +4,9 @@
   <head>
 		<title>Mobile Network Game</title>
 		<style type="text/css">
-			* {
+			body {
 				font-family: Calibri, sans-serif;
 				font-size: large;
-			}
-			
-			#placeTower {
-				display: none;
-			}
-
-			#explanation {
-				display: none;
-			}
-
-			#balanceNotEnough {
-				display: none;
 			}
 			
 			.keySprite, h1 {
@@ -39,7 +27,7 @@
 				margin-right: 1em;
 			}
 			
-			#balanceDisplay, #monthDisplay, #timeDisplay {
+			#monthDisplay, #timeDisplay {
 				font-size: large;
 				font-weight: bold;
 			}
@@ -94,7 +82,6 @@
 			<ul>
 				<li>Successful call: +5¤</li>
 				<li>Failed call: &ndash;2¤</li>
-				<li>Tower: <span id="towerPrice">50</span>¤</li>
 			</ul>
 			
 			<div id="blurb">
@@ -105,7 +92,7 @@
 			
 			<h2>Game status:</h2>
 			
-			<div id="balanceDisplay">Balance: <span id="balance">100</span>¤ <span id="gameOver">Game over!</span></div>
+			<div><span id="gameOver">Game over!</span></div>
 			<div id="monthDisplay" class="monthly">Month: <span id="month">0</span></div>
 			<div id="timeDisplay">Time elapsed: <span id="time">0</span> sec</div>
 		</div>
@@ -122,16 +109,27 @@
     </div>
 
     <div id="action-bar">
+    		<div id="balanceDisplay">
+    				Balance<br />
+    				<span id="balance">100</span>¤
+    		</div>
     		<div id="buttons">
-            <button type="button" id="placeTower"> place tower </button>
+            <button type="button" id="placeTower">
+            		<p>
+            				<span id="towerPrice">50</span>¤
+            		</p>
+            </button>
+            <button type="button" id="cancelPlacingTower"></button>
         </div>
 
-		    <div id="explanation">
-		      <p>Click on map to place a tower. <button type = "button" id="cancelPlacingTower">Cancel</button></p>
-		    </div>
-		    <div id="balanceNotEnough">
-		    	<p>Your balance is not enough.</p>
-		    </div>
+		    <div id="status">
+				    <div id="explanation">
+				      <p>Click on map to place a tower.</p>
+				    </div>
+				    <div id="balanceNotEnough">
+				    	<p>Your balance is not enough.</p>
+				    </div>
+				</div>
 		</div>
 
     <div id="startScreen">

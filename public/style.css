@@ -61,3 +61,74 @@ circle.load-ring-cover {
 	width:100%;
 	background-color:rgba(0, 0, 0, 0.3);
 }
+
+#balanceDisplay, #buttons, #status {
+	display:inline-block;
+	height:95%;
+	border:1px solid #000211;
+	border-top:0;
+	border-bottom:0;
+	margin:0 5px;
+	vertical-align:top;
+}
+
+#balanceDisplay {
+	width:10%;
+	font-size:4vh;
+	color:#efa000;
+	text-align:center;
+}
+
+#buttons {
+	width:20%;
+}
+
+#placeTower {
+	background-image:url('place-tower.png');
+	text-align:left;
+}
+
+#cancelPlacingTower {
+	background-image:url('cancel-tower.png');
+}
+
+#placeTower, #cancelPlacingTower {
+	display:none; /* JavaScript handles this, but buttons aren't visible before game start */
+	background-color:#003e77;
+	background-size:70% auto;
+	background-position:center;
+	background-repeat:no-repeat;
+	padding:0;
+	border:0;
+	border-radius:100%;
+	height:8vh;
+	width:8vh;
+	margin:1vh;
+	cursor:pointer;
+}
+
+#placeTower:hover, #cancelPlacingTower:hover {
+	background-color:#0167c4;
+}
+
+#placeTower p {
+	position:relative;
+	bottom:3vh;
+	padding:0;
+	margin:0;
+	color:#efa000;
+	font-size:2vh;
+	font-weight:bold;
+}
+
+#status {
+	width:40%;
+}
+
+#explanation, #balanceNotEnough {
+	display: none;
+}
+
+#explanation p, #balanceNotEnough p {
+	margin:0;
+}
