@@ -24,9 +24,6 @@
     var DEF_HEIGHT = 450;
     var mapScaling = 1.0; // Map magnification--might we want to allow this to vary and enable zooming?
 
-    var canvas;
-    var context;
-    var roadMap;
     var adjMap;
 
     var sprites;
@@ -90,8 +87,6 @@
     var timer;
 
     function initialise() {
-        canvas = document.getElementById('myCanvas');
-
         svg = document.getElementById('map');
         var svgWidth = svg.width.baseVal.value; // Width (in px) of SVG element (we would like to be able to set the width here, but there seem to be some difficulties doing that)
         var svgHeight = svg.height.baseVal.value;
@@ -104,35 +99,12 @@
         rangeGroup = document.getElementById('range-group');
         towerLoadGroup = document.getElementById('tower-load-group')
 
-        context = canvas.getContext('2d');
-        roadMap = new Image();
         sprites = new Array();
         towers = new Array();
 
         // Previously with JQuery, now inline in adj_graph.js
 				adjMap = ADJ_GRAPH;
 				initialiseSprites(params.numberOfSprites);
-
-        // Initialise roadmap
-        roadMap.src = "static_map.svg";
-        roadMap.onload = function() {
-            context.drawImage(roadMap, 0,0);
-        };
-
-        // click canvas currently only does one thing: place a tower
-        // but this can be extended to add other actions
-        canvas.onclick = function(event) {
-            if (currentPendingAction === pendingActions.placeTower){
-                var boundary = canvas.getBoundingClientRect();
-                var x = event.clientX - boundary.left;
-                var y = event.clientY - boundary.top;
-                towers.push(new Tower(towers.length, new Position(x, y)));
-                currentPendingAction = pendingActions.none;
-                //after placing the tower, hide explanation
-                document.getElementById("explanation").style.display = "none"; 
-            };
-            
-        };
 
         //get coordinates of the event
         //used both in svg.onmousemove and svg.onclick
@@ -309,7 +281,6 @@
 						if (getBalance() < 0) {
 							currentScreen = GAME_OVER_SCREEN;
 						}
-						render(); // Only needed for the canvas
 						break;
 					case GAME_OVER_SCREEN:
 						if (lastDisplayedScreen != GAME_OVER_SCREEN) {
@@ -333,14 +304,6 @@
 			initialiseSprites(getMonth());
 			incrementTowerPrice(5);
 		}
-
-    function render() {
-        context.clearRect(0,0,500,500);  // clear canvas
-        context.drawImage(roadMap, 0,0); // redraw background
-
-        drawSprites();
-        drawTowers();
-    }
 
     //Sprites
 
@@ -447,17 +410,6 @@
 				
     };
 
-    // Only needed for the canvas
-    function drawSprites(){
-        var radius = params.spriteRadius;
-        sprites.forEach(function (sprite) {
-            context.beginPath();
-            context.arc(sprite.pos.x, sprite.pos.y, radius, 0, Math.PI * 2, false);
-						context.fillStyle = sprite.callStatus;
-            context.fill();
-        });
-    }
-
 
     //Towers
 
@@ -480,21 +432,6 @@
         var offset = TOWER_LOAD_VISUAL_CIRCUMFERENCE * (1 - this.load / MAX_LOAD);
         loadVisualCover.setAttribute("stroke-dashoffset", offset)
     }
-
-    // These two functions are only needed for the canvas
-    function drawTowers(){
-        context.fillStyle = "cyan";
-        towers.forEach(function(tower){
-            drawSingleTower(tower);
-        });
-    }
-    function drawSingleTower(tower) {
-        var size = 15;
-        var x = Math.max(tower.pos.x - size/2.0, 0);
-        var y = Math.max(tower.pos.y - size/2.0, 0);
-        context.fillRect(x, y, size, size);
-    };
-
 
     function Position(x, y) {
         this.x = x;
