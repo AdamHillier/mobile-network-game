@@ -16,7 +16,7 @@ body {
 
 #map {
 	display:block;
-	width:67%;
+	width:60%;
 	height:90%;
 	background-image:url('map.svg');
 	background-repeat:no-repeat;
