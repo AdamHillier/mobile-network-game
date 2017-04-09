@@ -62,7 +62,7 @@ circle.load-ring-cover {
 	background-color:rgba(0, 0, 0, 0.3);
 }
 
-#balanceDisplay, #buttons, #status {
+#balanceDisplay, #buttons, #status, #volume {
 	display:inline-block;
 	height:95%;
 	border:1px solid #000211;
@@ -131,4 +131,19 @@ circle.load-ring-cover {
 
 #explanation p, #balanceNotEnough p {
 	margin:0;
+}
+
+#volume {
+	width:15%;
+}
+
+#volume label {
+	display:inline-block;
+	width:40%;
+}
+
+#volume input {
+	width:55%;
+	margin:2% 0 0 0;
+	padding:0;
 }
