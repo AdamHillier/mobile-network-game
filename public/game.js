@@ -152,7 +152,7 @@
 
 
         svg.onclick = function(event) {
-    		if (currentPendingAction === pendingActions.placeTower) {
+    		    if (currentPendingAction === pendingActions.placeTower) {
                 cancelPlacingTower();
 
                 if (getBalance() >= 50) { 
@@ -209,6 +209,7 @@
 
                 }
                 else {
+                    playSound(BAD_ACTION);
                     //show message that there's not enough balance
                     var balanceNotEnoughDiv = document.getElementById("balanceNotEnough");
                     balanceNotEnoughDiv.style.display = "inline";
@@ -398,12 +399,13 @@
                                 tower.updateLoadIndication();
 
 								sprite.lastTower = tower;
-								console.log(tower);
 								incrementBalance(params.successCallCredit);
+                playSound(CALL_SUCCESS);
 								return true;
 							}
 						}
 						incrementBalance(params.failureCallCredit);
+            playSound(CALL_FAIL);
 						return false;
 					}
 				}
