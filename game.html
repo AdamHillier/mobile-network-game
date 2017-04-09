@@ -59,6 +59,7 @@
 			}
 		</style>
 		<link rel="stylesheet" type="text/css" href="style.css" />
+		<link rel="stylesheet" type="text/css" href="sliders.css" />
   </head>
   <body>
 		<div id="info">
@@ -127,8 +128,10 @@
 				</div>
 
 				<div id="volume">
-						<label for="sfx-gain">SFX vol.</label><input id="sfx-gain" class="slider" type="range" min="0" max="100" step="1" value="100" onchange="setSfxGain(value)" />
-						<label for="music-gain">Music vol.</label><input id="music-gain" class="slider" type="range" min="0" max="100" step="1" value="100" onchange="setMusicGain(value)" />
+						<label for="sfx-gain">SFX vol.</label>
+						<input id="sfx-gain" class="slider" type="range" min="0" max="100" step="1" value="100" autocomplete="on" onchange="setSfxGain(value)" />
+						<label for="music-gain">Music vol.</label>
+						<input id="music-gain" class="slider" type="range" min="0" max="100" step="1" value="100" autocomplete="on" onchange="setMusicGain(value)" />
 				</div>
 		</div>
 

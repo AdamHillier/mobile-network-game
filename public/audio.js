@@ -16,6 +16,7 @@ document.addEventListener("DOMContentLoaded", function() {
 	} catch(e) {
 		alert('Web Audio API not supported');
 		audioContext = null;
+		document.getElementById("volume").style.display = "none";
 	}
 
 	if (audioContext != null) {

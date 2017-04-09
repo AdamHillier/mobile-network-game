@@ -1,0 +1,76 @@
+/* Remove default styling */
+
+.slider {
+	-webkit-appearance:none;
+	background:transparent;
+}
+
+.slider::-webkit-slider-thumb {
+	-webkit-appearance:none;
+}
+
+.slider:focus {
+	outline:none;
+}
+
+.slider::-ms-track {
+	width:100%;
+	cursor:pointer;
+	background:transparent;
+	border-color:transparent;
+	color:transparent;
+}
+
+/* Custom styling */
+
+.slider::-webkit-slider-thumb { /* Unfortunately we have to repeat this code 3 times */
+	background-color:#0167c4;
+	border:0;
+	border-radius:0;
+	height:15px;
+	width:4px;
+	cursor:pointer;
+	margin-top:-7px; /* Only needed for webkit */
+}
+.slider::-moz-range-thumb {
+	background-color:#0167c4;
+	border:0;
+	border-radius:0;
+	height:15px;
+	width:4px;
+	cursor:pointer;
+}
+.slider::-ms-thumb {
+	background-color:#0167c4;
+	border:0;
+	border-radius:0;
+	height:15px;
+	width:4px;
+	cursor:pointer;
+}
+
+.slider::-webkit-slider-runnable-track { /* Again code has to be repeated */
+	height:2px;
+	background-color:#003e77;
+	cursor:pointer;
+	border:0;
+}
+.slider::-moz-range-track {
+	height:2px;
+	background-color:#00203e; /* This is a different colour since we can style the lower portion of the slider independently */
+	cursor:pointer;
+	border:0;
+}
+.slider::-ms-track {
+	height:2px;
+	background-color:#003e77;
+	cursor:pointer;
+	border:0;
+}
+
+.slider::-ms-fill-upper { /* Make the upper portion of the slider darker (only possible in MS browsers) */
+	background-color:#00203e;
+}
+.slider::-moz-range-progress { /* Make the lower portion of the slider lighter */
+	background-color:#003e77;
+}
