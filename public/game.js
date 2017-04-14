@@ -77,15 +77,38 @@
 					sprites.push(new Sprite(id, startNode, neighbours[randIndx], getNodePosition(startNode), sprite));
 			}
 		}
-
-    var currentScreen = 0;
-    var lastDisplayedScreen = 0;
-    var START_SCREEN = 1;
-    var MAIN_GAME_SCREEN = 2;
-    var GAME_OVER_SCREEN = 3;
+//
     var toghrulsVariable;
     var timer;
+    function showStart() {
+        toghrulsVariable = document.getElementById("map");
+        toghrulsVariable.style.filter = "blur(5px)";
+        var startScreenSquare = document.getElementById("startScreen");
+        startScreenSquare.style.visibility = "visible";
+        document.getElementById("message").innerHTML = "Welcome to &quot;Mobile Network Game&quot;. The objective of the game is to have positive balance for\
+as long as possible. Press the button to start the game.";
+    }
+    function hideStart() {
+        toghrulsVariable = document.getElementById("map");
+        toghrulsVariable.style.filter = "blur(0px)";
+        var startScreenSquare = document.getElementById("startScreen");
+        startScreenSquare.style.visibility = "hidden";
+    }
+        
+    function endGame() {
+        toghrulsVariable = document.getElementById("map");
+        toghrulsVariable.style.filter = "blur(5px)";
+        var timeSpan = document.getElementById("time");
+        var score = parseInt(timeSpan.innerHTML);
+        clearInterval(timer);
+        var endScreenSquare = document.getElementById("startScreen");
+        endScreenSquare.style.visibility = "visible";
+        document.getElementById("message").innerHTML = "Game over. Your network was functional for " + score.toString() + " seconds. Click the button below to start a new game (not working yet).";
+    }
 
+//
+
+/////////////////////////////////////////////////////////////////////
     function initialise() {
         svg = document.getElementById('map');
         var svgWidth = svg.width.baseVal.value; // Width (in px) of SVG element (we would like to be able to set the width here, but there seem to be some difficulties doing that)
@@ -223,6 +246,8 @@
 
             };
         };
+
+        showStart();
     }
 
     function cancelPlacingTower() {
@@ -245,60 +270,30 @@
     };
 
     function gameLoop(timestamp) {
-				if (!startTime) startTime = timestamp;
-				var elapsed = timestamp - startTime;
-				startTime = timestamp;
-				
-				if (elapsed > 100) { elapsed = 16; }; // hack!! elapsed is very long when tab comes from background in Chrome
-				
-				if (timestamp-lastMonthStart > 10000) {
-					console.log("new month");
-					lastMonthStart = timestamp;
-					//newMonth();
-				};
-				
-				switch (currentScreen) {
-					case START_SCREEN:
-						if (lastDisplayedScreen != START_SCREEN) {
-							toghrulsVariable = document.getElementById("map");
-							toghrulsVariable.style.filter = "blur(5px)";
-							lastDisplayedScreen = START_SCREEN; 
-						}
-						var startScreenSquare = document.getElementById("startScreen");
-						startScreenSquare.style.visibility = "visible";
-						document.getElementById("message").innerHTML = "Welcome to &quot;Mobile Network Game&quot;. The objective of the game is to have positive balance for\
-							as long as possible. Press the button to start the game.";
-						break;
-					case MAIN_GAME_SCREEN:	
-						if (lastDisplayedScreen == START_SCREEN) {
-							toghrulsVariable = document.getElementById("map");
-							toghrulsVariable.style.filter = "blur(0px)";
-							lastDisplayedScreen = MAIN_GAME_SCREEN;
-							var startScreenSquare = document.getElementById("startScreen");
-							startScreenSquare.style.visibility = "hidden"; 
-						}			
-						// Call update on each sprite
-						sprites.forEach(function (sprite) { sprite.update(elapsed); } );
-						if (getBalance() < 0) {
-							currentScreen = GAME_OVER_SCREEN;
-						}
-						break;
-					case GAME_OVER_SCREEN:
-						if (lastDisplayedScreen != GAME_OVER_SCREEN) {
-							toghrulsVariable = document.getElementById("map");
-							toghrulsVariable.style.filter = "blur(5px)";
-							lastDisplayedScreen = GAME_OVER_SCREEN; 
-							var timeSpan = document.getElementById("time");
-							var score = parseInt(timeSpan.innerHTML);
-							clearInterval(timer);
-						}
-						var endScreenSquare = document.getElementById("startScreen");
-						endScreenSquare.style.visibility = "visible";
-						document.getElementById("message").innerHTML = "Game over. Your network was functional for " + score.toString() + " seconds. Click the button below to start a new game (not working yet).";
-						break;
-				}
-        			window.requestAnimationFrame(gameLoop);
-    }
+        if (!startTime) startTime = timestamp;
+        var elapsed = timestamp - startTime;
+        startTime = timestamp;
+
+        if (elapsed > 100) {
+            elapsed = 16;
+        }; // hack!! elapsed is very long when tab comes from background in Chrome
+
+        if (timestamp - lastMonthStart > 10000) {
+            console.log("new month");
+            lastMonthStart = timestamp;
+            //newMonth();
+        };
+
+        sprites.forEach(function(sprite) {
+            sprite.update(elapsed);
+        });
+
+        if (getBalance() < 0) {
+            endGame();
+        }
+
+        window.requestAnimationFrame(gameLoop);
+    };
 		
 		function newMonth () {
 			incrementMonth(1);
@@ -486,7 +481,6 @@
         return Math.floor(Math.random()*n);
     }
 
-
     //make sure all DOMs are loaded before operating on them
     document.addEventListener("DOMContentLoaded", function(){		
 				// window visibility
@@ -509,7 +503,7 @@
 							var timeSpan = document.getElementById("time");
 							timeSpan.innerHTML = parseInt(timeSpan.innerHTML)+1;
 						}, 1000);
-	    currentScreen = MAIN_GAME_SCREEN;
+            hideStart();
             window.requestAnimationFrame(gameLoop);
         };
 
@@ -526,21 +520,18 @@
 
         cancelPlacingTowerButton.onclick = cancelPlacingTower;
 				
-				// Blinking effect on "Sprite dialing..." key
-				setInterval(function () {
-					var style = document.getElementById("dialing").style;
-					if (style.color === "rgb(0, 255, 255)") {
-						style.color = spriteCallStatus.dialingPulse;
-					} else {
-						style.color = spriteCallStatus.dialing;
-					}
-				}, 500);
+        // Blinking effect on "Sprite dialing..." key
+        setInterval(function() {
+            var style = document.getElementById("dialing").style;
+            if (style.color === "rgb(0, 255, 255)") {
+                style.color = spriteCallStatus.dialingPulse;
+            } else {
+                style.color = spriteCallStatus.dialing;
+            }
+        }, 500);
 
         //initialise game
         initialise();
-	currentScreen = START_SCREEN;
-	window.requestAnimationFrame(gameLoop);
-
     });
     
 })();
