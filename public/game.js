@@ -18,7 +18,7 @@
     var peopleGroup;
     var towerGroup;
     var rangeGroup;
-    var towerLoadGroup
+    var towerLoadGroup;
 
     var DEF_WIDTH = 450; // Default width (in px) of the map background image (not the same as the SVG element's width)
     var DEF_HEIGHT = 450;
@@ -28,7 +28,7 @@
 
     var sprites;
     var startTime;
-		var lastMonthStart = 0;
+    var lastMonthStart = 0;
 
     var towers;
     var TOWER_WIDTH = 12;
@@ -36,8 +36,8 @@
     var TOWER_RANGE = 80; //originally 50, changed to 250 to test and illustrate tower load indication
     var MAX_LOAD = 3; // Maximum number of calls each tower can handle simultaneously
 
-    var TOWER_LOAD_VISUAL_RADIUS = 12
-    var TOWER_LOAD_VISUAL_CIRCUMFERENCE = 2 * Math.PI * TOWER_LOAD_VISUAL_RADIUS
+    var TOWER_LOAD_VISUAL_RADIUS = 12;
+    var TOWER_LOAD_VISUAL_CIRCUMFERENCE = 2 * Math.PI * TOWER_LOAD_VISUAL_RADIUS;
 
     var pendingActions = {
         none: 0,
@@ -45,13 +45,13 @@
     };
     var currentPendingAction = pendingActions.none;
 		
-		var spriteCallStatus = {
-			none: "#0167c4",
-			dialing: "#ff7795",
-			dialingPulse: "#783b77",
-			success: "#0f0",
-			failure: "#f00"
-		};
+    var spriteCallStatus = {
+        none: "#0167c4",
+        dialing: "#ff7795",
+        dialingPulse: "#783b77",
+        success: "#0f0",
+        failure: "#f00"
+    };
 
     var placeTowerButton;
     var cancelPlacingTowerButton;
@@ -80,18 +80,21 @@
 //
     var toghrulsVariable;
     var timer;
+    var GAME_PAUSED = false;
+    var GAME_UNPAUSED = false;
+    var lastPaused; //the latest time when the game was paused by the game loop 
     function showStart() {
         toghrulsVariable = document.getElementById("map");
         toghrulsVariable.style.filter = "blur(5px)";
-        var startScreenSquare = document.getElementById("startScreen");
+        var startScreenSquare = document.getElementById("commScreen");
         startScreenSquare.style.visibility = "visible";
         document.getElementById("message").innerHTML = "Welcome to &quot;Mobile Network Game&quot;. The objective of the game is to have positive balance for\
 as long as possible. Press the button to start the game.";
     }
-    function hideStart() {
+    function hideScreen() {
         toghrulsVariable = document.getElementById("map");
         toghrulsVariable.style.filter = "blur(0px)";
-        var startScreenSquare = document.getElementById("startScreen");
+        var startScreenSquare = document.getElementById("commScreen");
         startScreenSquare.style.visibility = "hidden";
     }
         
@@ -101,10 +104,36 @@ as long as possible. Press the button to start the game.";
         var timeSpan = document.getElementById("time");
         var score = parseInt(timeSpan.innerHTML);
         clearInterval(timer);
-        var endScreenSquare = document.getElementById("startScreen");
+        var endScreenSquare = document.getElementById("commScreen");
         endScreenSquare.style.visibility = "visible";
-        document.getElementById("message").innerHTML = "Game over. Your network was functional for " + score.toString() + " seconds. Click the button below to start a new game (not working yet).";
+        document.getElementById("message").innerHTML = "Game over. Your network was functional for " + score.toString() + " seconds.";
+        document.getElementById("commButton").style.visibility = "hidden";
     }
+
+    function pause() {
+        GAME_PAUSED = true;
+    }
+
+    function unpause() {
+        GAME_PAUSED = false;
+        GAME_UNPAUSED = true;
+        window.requestAnimationFrame(gameLoop);
+    }
+
+    function showMonthly() {
+        toghrulsVariable = document.getElementById("map");
+        toghrulsVariable.style.filter = "blur(5px)";
+        var startScreenSquare = document.getElementById("commScreen");
+        startScreenSquare.style.visibility = "visible"; 
+        document.getElementById("message").innerHTML = "A month has passed";
+        var startGameButton = document.getElementById("commButton");
+        startGameButton.textContent = "continue game";
+        startGameButton.onclick = function() {
+            hideScreen();
+            unpause();
+        };
+    }      
+  
 
 //
 
@@ -120,7 +149,7 @@ as long as possible. Press the button to start the game.";
         peopleGroup = document.getElementById('people-group');
         towerGroup = document.getElementById('tower-group');
         rangeGroup = document.getElementById('range-group');
-        towerLoadGroup = document.getElementById('tower-load-group')
+        towerLoadGroup = document.getElementById('tower-load-group');
 
         sprites = new Array();
         towers = new Array();
@@ -175,7 +204,7 @@ as long as possible. Press the button to start the game.";
 
 
         svg.onclick = function(event) {
-    		    if (currentPendingAction === pendingActions.placeTower) {
+    	    if (currentPendingAction === pendingActions.placeTower) {
                 cancelPlacingTower();
 
                 if (getBalance() >= 50) { 
@@ -222,8 +251,8 @@ as long as possible. Press the button to start the game.";
                     loadRingCover.setAttribute("id", "load-ring-cover" + towerId);
                     //the "cover" ring is not a full ring, and is initialised to have zero length
                     //after setting stroke-dasharray to be the circumference, we have the nice property that length_of_arc_shown = circle_circumference - stroke-dashoffset
-                    loadRingCover.setAttribute("stroke-dasharray", TOWER_LOAD_VISUAL_CIRCUMFERENCE) 
-                    loadRingCover.setAttribute("stroke-dashoffset", TOWER_LOAD_VISUAL_CIRCUMFERENCE)
+                    loadRingCover.setAttribute("stroke-dasharray", TOWER_LOAD_VISUAL_CIRCUMFERENCE); 
+                    loadRingCover.setAttribute("stroke-dashoffset", TOWER_LOAD_VISUAL_CIRCUMFERENCE);
                     loadRingCover.setAttribute("transform", "rotate(270 " + cx + " " + cy + ")");
                     towerLoadGroup.appendChild(loadRingCover);
                     
@@ -270,29 +299,39 @@ as long as possible. Press the button to start the game.";
     };
 
     function gameLoop(timestamp) {
+        
         if (!startTime) startTime = timestamp;
-        var elapsed = timestamp - startTime;
+        var elapsed;
+
+        if (!GAME_UNPAUSED) {
+        elapsed = timestamp - startTime;
+        } else {
+            elapsed = 0;
+            GAME_UNPAUSED = false;
+            lastMonthStart = timestamp;
+        }
         startTime = timestamp;
 
         if (elapsed > 100) {
             elapsed = 16;
         }; // hack!! elapsed is very long when tab comes from background in Chrome
 
-        if (timestamp - lastMonthStart > 10000) {
-            console.log("new month");
-            lastMonthStart = timestamp;
-            //newMonth();
-        };
-
         sprites.forEach(function(sprite) {
             sprite.update(elapsed);
         });
 
+/*        if (timestamp - lastMonthStart > 10000) { //careful with the pause - a long pause might take several months
+            console.log("new month");
+            lastMonthStart = timestamp;
+            //newMonth();
+        }; */
         if (getBalance() < 0) {
             endGame();
+        } else if (hasMonthPassed(timestamp)) {
+            showMonthly(); 
+        } else {
+            window.requestAnimationFrame(gameLoop);
         }
-
-        window.requestAnimationFrame(gameLoop);
     };
 		
 		function newMonth () {
@@ -463,6 +502,9 @@ as long as possible. Press the button to start the game.";
 		}
 		
 		// Timekeeping
+		function hasMonthPassed(timestamp) {
+			return (timestamp - lastMonthStart > 20000);
+		}
 		function getMonth() {
 			return parseInt(document.getElementById("month").innerHTML);
 		}
@@ -496,14 +538,14 @@ as long as possible. Press the button to start the game.";
 				};
 			
         //bind button actions
-        var startGameButton = document.getElementById("startGame");
+        var startGameButton = document.getElementById("commButton");
         startGameButton.onclick = function() {
             document.getElementById("placeTower").style.display = "inline"; //show button for placing tower
 						timer = setInterval(function(){
 							var timeSpan = document.getElementById("time");
 							timeSpan.innerHTML = parseInt(timeSpan.innerHTML)+1;
 						}, 1000);
-            hideStart();
+            hideScreen();
             window.requestAnimationFrame(gameLoop);
         };
 
