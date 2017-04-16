@@ -17,6 +17,10 @@
     var succCalls = 0;
     var failedCalls = 0;
 
+    // Game stats
+    var totalSuccCalls = 0
+    var totalFailedCalls = 0;
+
     // 'Global' variables
     var svg;
     var peopleGroup;
@@ -92,8 +96,11 @@
         toghrulsVariable.style.filter = "blur(5px)";
         var startScreenSquare = document.getElementById("commScreen");
         startScreenSquare.style.visibility = "visible";
-        document.getElementById("message").innerHTML = "Welcome to &quot;Mobile Network Game&quot;. The objective of the game is to have positive balance for\
- as long as possible. Press the button to start the game.";
+        document.getElementById("message").innerHTML = "Welcome to &quot;Mobile Network Game&quot;. The objective of the game is to have non-negative balance of ¤ for as long as possible.";
+	document.getElementById("p1").innerHTML = "Click on the tower icon (that wil soon appear) to place a tower. Towers initially cost 50¤, but their cost will gradually increase after every month. There is a monthly maintenance charge for each tower.";
+        document.getElementById("p2").innerHTML = "Sprites on the map correspond to subscribers. They will periodically try to make a call and succeed iff they happen to be within range of an available tower.";
+        document.getElementById("p3").innerHTML = "Towers can handle up to three concurrent calls. You will receive 5¤ for a successful call and lose 2¤ for a failed one.";
+        document.getElementById("p4").innerHTML = "Click the button below to start the game.";
     }
     function hideScreen() {
         toghrulsVariable = document.getElementById("map");
@@ -112,6 +119,10 @@
         var endScreenSquare = document.getElementById("commScreen");
         endScreenSquare.style.visibility = "visible";
         document.getElementById("message").innerHTML = "Game over. Your network was functional for " + score.toString() + " seconds.";
+        document.getElementById("p1").innerHTML = "During its lifetime, your network successfully handled "+totalSuccCalls+" calls, and failed to handle "+totalFailedCalls+".";
+        document.getElementById("p2").innerHTML = "Overall, you managed to place "+towers.length+" tower(s).";
+        document.getElementById("p3").innerHTML = "";
+        document.getElementById("p4").innerHTML = "";
         document.getElementById("commButton").style.visibility = "hidden";
     }
 
@@ -122,12 +133,16 @@
 
     function showMonthly() {
         stopTimer();
+	var cost = maintainTowers();
         toghrulsVariable = document.getElementById("map");
         toghrulsVariable.style.filter = "blur(5px)";
         var startScreenSquare = document.getElementById("commScreen");
         startScreenSquare.style.visibility = "visible"; 
-        document.getElementById("message").innerHTML = "A month has passed. The towers now cost "+getTowerPrice().toString()+" units. Your network successfully handled "+succCalls+ "calls and failed to handle \
-" +failedCalls+".";
+        document.getElementById("message").innerHTML = "A month has passed. Here is the summary:";
+	document.getElementById("p1").innerHTML = "Calls attempted: "+(succCalls+failedCalls);
+        document.getElementById("p2").innerHTML = "Calls successfully handled by the network: "+succCalls;
+        document.getElementById("p3").innerHTML = "You have been charged "+cost+"¤ for tower maintenance. A tower now costs "+getTowerPrice().toString()+"¤."
+        document.getElementById("p4").innerHTML = "Click the button below to continue the game."
         succCalls = 0;
         failedCalls = 0;
         var startGameButton = document.getElementById("commButton");
@@ -438,12 +453,14 @@ F							} else {
 								sprite.lastTower = tower;
 								incrementBalance(params.successCallCredit);
                 playSound(CALL_SUCCESS);
+								totalSuccCalls = totalSuccCalls + 1;
 								succCalls = succCalls + 1;
 								return true;
 							}
 						}
 						incrementBalance(params.failureCallCredit);
             playSound(CALL_FAIL);
+						totalFailedCalls = totalFailedCalls + 1;
 						failedCalls = failedCalls + 1;
 						return false;
 					}
@@ -505,6 +522,11 @@ F							} else {
 		function incrementTowerPrice(by) {
 			setTowerPrice(getTowerPrice()+by);
 		}
+		function maintainTowers() {
+			var cost = towers.length * 5;
+			setBalance(getBalance() - cost);
+			return cost;
+		}	
 		
 		// Timekeeping
                 function startTimer() {
