@@ -333,7 +333,6 @@ as long as possible. Press the button to start the game.";
         if (getBalance() < 0) {
             endGame();
         } else if (hasMonthPassed(timestamp)) {
-//            newMonth();
             showMonthly(); 
         } else {
             window.requestAnimationFrame(gameLoop);
@@ -515,7 +514,7 @@ F							} else {
 			}, 1000);
                 }
                 function stopTimer() {
-			stopTimer();
+			clearInterval(timer);
 		}
 		function hasMonthPassed(timestamp) {
 			return (timestamp - lastMonthStart > 10000);
