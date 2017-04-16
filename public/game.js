@@ -13,6 +13,10 @@
 				failureCallCredit: -2
     };
 
+    // Monthly stats
+    var succCalls = 0;
+    var failedCalls = 0;
+
     // 'Global' variables
     var svg;
     var peopleGroup;
@@ -79,8 +83,8 @@
 		}
 //
     var toghrulsVariable;
-    var timer;
-    var GAME_PAUSED = false;
+    var timer; //the "time elapsed" chronometer
+//    var GAME_PAUSED = false;
     var GAME_UNPAUSED = false;
     var lastPaused; //the latest time when the game was paused by the game loop 
     function showStart() {
@@ -89,7 +93,7 @@
         var startScreenSquare = document.getElementById("commScreen");
         startScreenSquare.style.visibility = "visible";
         document.getElementById("message").innerHTML = "Welcome to &quot;Mobile Network Game&quot;. The objective of the game is to have positive balance for\
-as long as possible. Press the button to start the game.";
+ as long as possible. Press the button to start the game.";
     }
     function hideScreen() {
         toghrulsVariable = document.getElementById("map");
@@ -100,23 +104,18 @@ as long as possible. Press the button to start the game.";
     }
         
     function endGame() {
+        stopTimer();
         toghrulsVariable = document.getElementById("map");
         toghrulsVariable.style.filter = "blur(5px)";
         var timeSpan = document.getElementById("time");
         var score = parseInt(timeSpan.innerHTML);
-        
         var endScreenSquare = document.getElementById("commScreen");
         endScreenSquare.style.visibility = "visible";
         document.getElementById("message").innerHTML = "Game over. Your network was functional for " + score.toString() + " seconds.";
         document.getElementById("commButton").style.visibility = "hidden";
     }
 
-    function pause() {
-        GAME_PAUSED = true;
-    }
-
     function unpause() {
-        GAME_PAUSED = false;
         GAME_UNPAUSED = true;
         window.requestAnimationFrame(gameLoop);
     }
@@ -127,7 +126,10 @@ as long as possible. Press the button to start the game.";
         toghrulsVariable.style.filter = "blur(5px)";
         var startScreenSquare = document.getElementById("commScreen");
         startScreenSquare.style.visibility = "visible"; 
-        document.getElementById("message").innerHTML = "A month has passed";
+        document.getElementById("message").innerHTML = "A month has passed. The towers now cost "+getTowerPrice().toString()+" units. Your network successfully handled "+succCalls+ "calls and failed to handle \
+" +failedCalls+".";
+        succCalls = 0;
+        failedCalls = 0;
         var startGameButton = document.getElementById("commButton");
         startGameButton.textContent = "continue game";
         startGameButton.onclick = function() {
@@ -278,7 +280,7 @@ as long as possible. Press the button to start the game.";
             };
         };
 
-        showStart();
+         showStart();
     }
 
     function cancelPlacingTower() {
@@ -325,14 +327,10 @@ as long as possible. Press the button to start the game.";
             sprite.update(elapsed);
         });
 
-/*        if (timestamp - lastMonthStart > 10000) { //careful with the pause - a long pause might take several months
-            console.log("new month");
-            lastMonthStart = timestamp;
-            //newMonth();
-        }; */
         if (getBalance() < 0) {
             endGame();
         } else if (hasMonthPassed(timestamp)) {
+            newMonth();
             showMonthly(); 
         } else {
             window.requestAnimationFrame(gameLoop);
@@ -348,7 +346,7 @@ as long as possible. Press the button to start the game.";
     //Sprites
 
     function Sprite(id, prevNode, targetNode, pos, elem) {
-    		this.id = id; // Might end up being redundant, but should be useful for debugging at least
+    	this.id = id; // Might end up being redundant, but should be useful for debugging at least
         this.previousNode = prevNode;
         this.targetNode = targetNode;
         this.pos = pos;
@@ -440,11 +438,13 @@ F							} else {
 								sprite.lastTower = tower;
 								incrementBalance(params.successCallCredit);
                 playSound(CALL_SUCCESS);
+								succCalls = succCalls + 1;
 								return true;
 							}
 						}
 						incrementBalance(params.failureCallCredit);
             playSound(CALL_FAIL);
+						failedCalls = failedCalls + 1;
 						return false;
 					}
 				}
@@ -555,10 +555,7 @@ F							} else {
         var startGameButton = document.getElementById("commButton");
         startGameButton.onclick = function() {
             document.getElementById("placeTower").style.display = "inline"; //show button for placing tower
-/*						timer = setInterval(function(){
-							var timeSpan = document.getElementById("time");
-							timeSpan.innerHTML = parseInt(timeSpan.innerHTML)+1;
-						}, 1000); */
+            //starting and stopping the "time elapsed" chronometer is done by methods showing/hiding start'monthly feedback/endgame screens
             hideScreen();
             window.requestAnimationFrame(gameLoop);
         };
