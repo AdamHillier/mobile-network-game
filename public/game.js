@@ -96,6 +96,7 @@ as long as possible. Press the button to start the game.";
         toghrulsVariable.style.filter = "blur(0px)";
         var startScreenSquare = document.getElementById("commScreen");
         startScreenSquare.style.visibility = "hidden";
+        startTimer();
     }
         
     function endGame() {
@@ -103,7 +104,7 @@ as long as possible. Press the button to start the game.";
         toghrulsVariable.style.filter = "blur(5px)";
         var timeSpan = document.getElementById("time");
         var score = parseInt(timeSpan.innerHTML);
-        clearInterval(timer);
+        
         var endScreenSquare = document.getElementById("commScreen");
         endScreenSquare.style.visibility = "visible";
         document.getElementById("message").innerHTML = "Game over. Your network was functional for " + score.toString() + " seconds.";
@@ -121,6 +122,7 @@ as long as possible. Press the button to start the game.";
     }
 
     function showMonthly() {
+        stopTimer();
         toghrulsVariable = document.getElementById("map");
         toghrulsVariable.style.filter = "blur(5px)";
         var startScreenSquare = document.getElementById("commScreen");
@@ -300,7 +302,10 @@ as long as possible. Press the button to start the game.";
 
     function gameLoop(timestamp) {
         
-        if (!startTime) startTime = timestamp;
+        if (!startTime) {
+            startTime = timestamp;
+            lastMonthStart = timestamp
+        }
         var elapsed;
 
         if (!GAME_UNPAUSED) {
@@ -328,6 +333,7 @@ as long as possible. Press the button to start the game.";
         if (getBalance() < 0) {
             endGame();
         } else if (hasMonthPassed(timestamp)) {
+//            newMonth();
             showMonthly(); 
         } else {
             window.requestAnimationFrame(gameLoop);
@@ -404,7 +410,7 @@ as long as possible. Press the button to start the game.";
 							clearInterval(ringRing);
 							if (handleCall(sprite)) {
 								sprite.callStatus = spriteCallStatus.success;
-							} else {
+F							} else {
 								sprite.callStatus = spriteCallStatus.failure;
 							}
 						}, params.callDuration/3);
@@ -502,8 +508,17 @@ as long as possible. Press the button to start the game.";
 		}
 		
 		// Timekeeping
+                function startTimer() {
+                	timer = setInterval(function(){
+				var timeSpan = document.getElementById("time");
+				timeSpan.innerHTML = parseInt(timeSpan.innerHTML)+1;
+			}, 1000);
+                }
+                function stopTimer() {
+			stopTimer();
+		}
 		function hasMonthPassed(timestamp) {
-			return (timestamp - lastMonthStart > 20000);
+			return (timestamp - lastMonthStart > 10000);
 		}
 		function getMonth() {
 			return parseInt(document.getElementById("month").innerHTML);
@@ -541,10 +556,10 @@ as long as possible. Press the button to start the game.";
         var startGameButton = document.getElementById("commButton");
         startGameButton.onclick = function() {
             document.getElementById("placeTower").style.display = "inline"; //show button for placing tower
-						timer = setInterval(function(){
+/*						timer = setInterval(function(){
 							var timeSpan = document.getElementById("time");
 							timeSpan.innerHTML = parseInt(timeSpan.innerHTML)+1;
-						}, 1000);
+						}, 1000); */
             hideScreen();
             window.requestAnimationFrame(gameLoop);
         };
