@@ -1,160 +1,179 @@
 <!DOCTYPE HTML>
 <meta charset="utf-8">
 <html>
-  <head>
-		<title>Mobile Network Game</title>
-		<style type="text/css">
-			body {
-				font-family: Calibri, sans-serif;
-				font-size: large;
-			}
-			
-			.keySprite, h1 {
-				font-size: xx-large;
-			}
-			.keySprite {
-				line-height: 20px;
-				position: relative;
-				top: 4.5px;
-			}
-			#info {
-				float: right;
-				max-width: 33%;
-			}
-			
-			h1 {
-				color: grey;
-				margin-right: 1em;
-			}
-			
-			#monthDisplay, #timeDisplay {
-				font-size: large;
-				font-weight: bold;
-			}
-			#gameOver {
-				color: red;
-				display: none;
-			}
-			
-			.monthly {
-				display: none;
-			}
-			#commScreen {
-				position: absolute;
-				top: 100px;
-				left: 150px;
-				height: 600px;
-				width: 600px;
-				border: solid;
-				visibility: hidden;
-				background: #ffffff;
-			}
-			#message, #p1, #p2, #p3, #p4 {
-				padding: 10px, 10px, 10px, 10px;
-				text-align: center;
-				font-size: 24px;
-				margin: 10px 10px;
-				font-weight: bold;
-			}
-			#commButton {
-				display:block;
-				margin: 50px auto;
-				font-size: 20px;
-				background-color: #ffffff;
-				border: 4px solid #173e7c;
-			}
-		</style>
-		<link rel="stylesheet" type="text/css" href="style.css" />
-		<link rel="stylesheet" type="text/css" href="sliders.css" />
-  </head>
-  <body>
-		<div id="info">
-			<h1>
-				Group Design Project&mdash;Team 4
-			</h1>
+    <head>
+        <title>Mobile Network Game</title>
+        <style type="text/css">
+            body {
+                font-family: Calibri, sans-serif;
+                font-size: large;
+            }
 
-			<div id="key">
-				<h2>Sprite key</h2>
-				<div id="noCall"><span class="keySprite">•</span> Idle sprite</div>
-				<div id="dialing"><span class="keySprite">•</span> Sprite dialing...</div>
-				<div id="callSuccess"><span class="keySprite">•</span> Call succeeded :)</div>
-				<div id="callFailure"><span class="keySprite">•</span> Call failed :(</div>
-			</div>
-			
-			<h2>Price list:</h2>
-			<ul>
-				<li>Successful call: +5¤</li>
-				<li>Failed call: &ndash;2¤</li>
-			</ul>
-			
-			<div id="blurb">
-				<p>Towers can handle 3 calls at a time.</p>
-				<p class="monthly">Each month towers increase in price and more customers appear.</p>
-				<p>Objective: maximise your ¤.</p>
-			</div>
-			
-			<h2>Game status:</h2>
-			
-			<div><span id="gameOver">Game over!</span></div>
-			<div id="monthDisplay" class="monthly">Month: <span id="month">0</span></div>
-			<div id="timeDisplay">Time elapsed: <span id="time">0</span> sec</div>
-		</div>
-		
-    <div id="container">		
-        <svg id="map" xmlns="http://www.w3.org/2000/svg" version="1.1">
-    	    <!-- Keep people, towers, and range indicators in different layers -->
-    	    <g id="people-group"></g>
-    	    <g id="tower-group"></g>
-    	    <g id="range-group"></g>
-    	    <g id="tower-load-group"></g>
-        </svg>
-    </div>
+            .keySprite, h1 {
+                font-size: xx-large;
+            }
+            .keySprite {
+                line-height: 20px;
+                position: relative;
+                top: 4.5px;
+            }
+            #info {
+                float: right;
+                max-width: 33%;
+            }
 
-    <div id="action-bar">
-    		<div id="balanceDisplay">
-    				Balance<br />
-    				<span id="balance">100</span>¤
-    		</div>
-    		<div id="buttons">
-            <button type="button" id="placeTower">
-            		<p>
-            				<span id="towerPrice">50</span>¤
-            		</p>
-            </button>
-            <button type="button" id="cancelPlacingTower"></button>
+            h1 {
+                color: grey;
+                margin-right: 1em;
+            }
+
+            #monthDisplay, #timeDisplay {
+                font-size: large;
+                font-weight: bold;
+            }
+            #gameOver {
+                color: red;
+                display: none;
+            }
+
+            .monthly {
+                display: none;
+            }
+            #commScreen {
+                position: absolute;
+                top: 100px;
+                left: 150px;
+                height: 600px;
+                width: 600px;
+                border: solid;
+                visibility: hidden;
+                background: #ffffff;
+            }
+            #message, #p1, #p2, #p3, #p4 {
+                padding: 10px, 10px, 10px, 10px;
+                text-align: center;
+                font-size: 24px;
+                margin: 10px 10px;
+                font-weight: bold;
+            }
+            #commButton {
+                display: block;
+                margin: 50px auto;
+                font-size: 20px;
+                background-color: #ffffff;
+                border: 4px solid #173e7c;
+            }
+            #submitForm {
+                text-align: center;
+            }
+            #submitForm > input {
+                display: inline;
+                font-size: 24px;
+                padding: 10px, 10px, 10px, 10px;
+                font-weight: bold;
+            }
+            #formSubmit {
+                font-size: 20px;
+                background-color: #ffffff;
+                border: 4px solid #173e7c;
+            }
+        </style>
+        <link rel="stylesheet" type="text/css" href="style.css" />
+        <link rel="stylesheet" type="text/css" href="sliders.css" />
+    </head>
+
+    <body>
+        <div id="info">
+            <h1>
+                Group Design Project&mdash;Team 4
+            </h1>
+
+            <div id="key">
+                <h2>Sprite key</h2>
+                <div id="noCall"><span class="keySprite">•</span> Idle sprite</div>
+                <div id="dialing"><span class="keySprite">•</span> Sprite dialing...</div>
+                <div id="callSuccess"><span class="keySprite">•</span> Call succeeded :)</div>
+                <div id="callFailure"><span class="keySprite">•</span> Call failed :(</div>
+            </div>
+
+            <h2>Price list:</h2>
+            <ul>
+                <li>Successful call: +5¤</li>
+                <li>Failed call: &ndash;2¤</li>
+            </ul>
+
+            <div id="blurb">
+                <p>Towers can handle 3 calls at a time.</p>
+                <p class="monthly">Each month towers increase in price and more customers appear.</p>
+                <p>Objective: maximise your ¤.</p>
+            </div>
+
+            <h2>Game status:</h2>
+
+            <div><span id="gameOver">Game over!</span></div>
+            <div id="monthDisplay" class="monthly">Month: <span id="month">0</span></div>
+            <div id="timeDisplay">Time elapsed: <span id="time">0</span> sec</div>
         </div>
 
-		    <div id="status">
-				    <div id="explanation">
-				      <p>Click on map to place a tower.</p>
-				    </div>
-				    <div id="balanceNotEnough">
-				    	<p>Your balance is not enough.</p>
-				    </div>
-				</div>
+        <div id="container">
+            <svg id="map" xmlns="http://www.w3.org/2000/svg" version="1.1">
+                <!-- Keep people, towers, and range indicators in different layers -->
+                <g id="people-group"></g>
+                <g id="tower-group"></g>
+                <g id="range-group"></g>
+                <g id="tower-load-group"></g>
+            </svg>
+        </div>
 
-				<div id="volume">
-						<label for="sfx-gain">SFX vol.</label>
-						<input id="sfx-gain" class="slider" type="range" min="0" max="100" step="1" value="100" autocomplete="on" onchange="setSfxGain(value)" />
-						<label for="music-gain">Music vol.</label>
-						<input id="music-gain" class="slider" type="range" min="0" max="100" step="1" value="100" autocomplete="on" onchange="setMusicGain(value)" />
-				</div>
-		</div>
+        <div id="action-bar">
+            <div id="balanceDisplay">
+                Balance<br />
+                <span id="balance">100</span>¤
+            </div>
+            <div id="buttons">
+                <button type="button" id="placeTower">
+                    <p>
+                        <span id="towerPrice">50</span>¤
+                    </p>
+                </button>
+                <button type="button" id="cancelPlacingTower"></button>
+            </div>
 
-    <div id="commScreen">
-        <p id="message"></p>
-	<p id="p1"></p>
-	<p id="p2"></p>
-	<p id="p3"></p>
-	<p id="p4"></p>
-        <button type="button" id="commButton"> start game </button>
-    </div>
+            <div id="status">
+                <div id="explanation">
+                    <p>Click on map to place a tower.</p>
+                </div>
+                <div id="balanceNotEnough">
+                    <p>Your balance is not enough.</p>
+                </div>
+            </div>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-    <script type="text/javascript" src="buffer-loader.js"></script>
-    <script type="text/javascript" src="audio.js"></script>
-    <script type="text/javascript" src="game.js"></script> <!-- prefix public/ to view locally -->
-		<script type="text/javascript" src="adj_graph.js"></script>
+            <div id="volume">
+                <label for="sfx-gain">SFX vol.</label>
+                <input id="sfx-gain" class="slider" type="range" min="0" max="100" step="1" value="100" autocomplete="on" onchange="setSfxGain(value)" />
+                <label for="music-gain">Music vol.</label>
+                <input id="music-gain" class="slider" type="range" min="0" max="100" step="1" value="100" autocomplete="on" onchange="setMusicGain(value)" />
+            </div>
+        </div>
 
-  </body>
+        <div id="commScreen">
+            <p id="message"></p>
+            <p id="p1"></p>
+            <p id="p2"></p>
+            <p id="p3"></p>
+            <p id="p4"></p>
+            <form id='submitForm' action='submit-score' method='post' style='display: none;'>
+                <input id='email-input' type='email' placeholder='Email' autofocus required>
+                <button type="submit" id="formSubmit">Send</button>
+            </form>
+            <button type="button" id="commButton"> start game </button>
+        </div>
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        <script type="text/javascript" src="buffer-loader.js"></script>
+        <script type="text/javascript" src="audio.js"></script>
+        <script type="text/javascript" src="game.js"></script> <!-- prefix public/ to view locally -->
+        <script type="text/javascript" src="adj_graph.js"></script>
+
+    </body>
 </html>

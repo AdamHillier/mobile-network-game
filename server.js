@@ -43,7 +43,7 @@ client.zaddIfGreater = function (args, callback) {
 app.use(express.static(__dirname + '/public'));
 
 app.get('/', function (req, res) {
-    res.sendFile(__dirname + '/game.html')
+    res.sendFile(__dirname + '/game.html');
 });
 
 app.post('/submit-score', jsonParser, function (req, res) {
@@ -53,7 +53,7 @@ app.post('/submit-score', jsonParser, function (req, res) {
     // See: https://stackoverflow.com/questions/46155/validate-email-address-in-javascript/1373724#1373724
     var emailRegex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
     var isValidInput = (body && body.email && emailRegex.test(body.email)
-            && body.score && typeof(body.score) === 'number' && body.score >= 0);
+            && body.score && (body.score = parseInt(body.score)) && body.score >= 0);
 
     if (!isValidInput) return res.sendStatus(400);
 
@@ -71,7 +71,7 @@ app.use(function (req, res) {
          Initialise server
 *********************************/
 
-var port = process.env.PORT || 8080
+var port = process.env.PORT || 8080;
 app.listen(port, function () {
     console.log('Listening on localhost::' + port);
 });
