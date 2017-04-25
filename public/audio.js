@@ -3,6 +3,8 @@ var sfxGainNode;
 var musicGainNode;
 var bufferLoader;
 var bufferList;
+var music = new Audio('music.mp3');
+music.loop = true;
 
 var soundFileList = ['bad-action.mp3', 'call-fail.mp3', 'call-success.mp3'];
 var BAD_ACTION = 0;
@@ -34,6 +36,10 @@ document.addEventListener("DOMContentLoaded", function() {
 		musicGainNode.gain.value = document.getElementById("music-gain").value / 100.0;
 		sfxGainNode.connect(audioContext.destination);
 		musicGainNode.connect(audioContext.destination);
+
+		var musicSource = audioContext.createMediaElementSource(music);
+		musicSource.connect(musicGainNode);
+		music.play();
 	}
 });
 
