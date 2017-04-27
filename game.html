@@ -133,26 +133,19 @@
 
             <!-- TODO -->
             <div id="buttons">
-            <!-- removed the original placeTower button, and replace with new buttons placing specific types of towers. -->
-            <!-- 
-                <button type="button" id="placeTower">
-                    <p>
-                        <span id="towerPrice">50</span>¤
-                    </p>
-                </button>
-            -->     
-
-                <p>
-                    <span id="towerPrice">50</span>¤ 
-                    <!-- apparently you can't just delete this span together with the old button, because its innerHTML is being used to getTowerPrice() and setTowerPrice() -->
-                </p>
-
                 <button type="button" id="cancelPlacingTower"></button>
 
                 <!-- buttons for placing different types of tower -->
-                <button type="button" class="placeTower" id="placeTower1">Place Tower of Type 1</button>
-                <button type="button" class="placeTower" id="placeTower2">Place Tower of Type 2</button>
-
+                <button type="button" class="placeTower" id="placeTower1">
+                		<p>
+                        <span id="towerPrice">50</span>¤
+                    </p>
+                </button>
+                <button type="button" class="placeTower" id="placeTower2">
+                		<p>
+                        Same
+                    </p>
+                </button>
             </div>
             <!-- TODO FINISHED -->
 

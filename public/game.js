@@ -291,7 +291,7 @@
                 //Note: this must be done AFTER we get the type of tower to place, because that inspects the currentPendingAction, and cancelPlacingTower() sets it to none.
                 cancelPlacingTower(); 
 
-                if (getBalance() >= 50) {
+                if (getBalance() >= getTowerPrice()) {
                     //get cursor location
                     //extracted out the function getcxcy because it's also used in svg.onmousemove
                     var cxcy = getcxcy(event);
@@ -368,8 +368,9 @@
         currentPendingAction = pendingActions.none;
         cancelPlacingTowerButton.style.display = "none";
 
-        //note that each click of a placeTowerX button will set the placeTowerButton variable to the corresponding one for type X.
-        placeTowerButton.style.display = "inline"; 
+        for (let button of (document.getElementsByClassName("placeTower"))) {
+            button.style.display = "inline";
+        }
 
         //hide #explanation paragraph.
         document.getElementById("explanation").style.display = "none";
@@ -660,7 +661,7 @@
 
 
         cancelPlacingTowerButton = document.getElementById("cancelPlacingTower");
-        explanation
+        cancelPlacingTowerButton.onclick = cancelPlacingTower;
 
         document.getElementById("placeTower1").onclick = function() {
             placeTower(1);
@@ -682,15 +683,15 @@
                     explanationParagraph = "Click on map to place a tower with high capacity."
             };
 
-            placeTowerButton.style.display = "none";
+            for (let button of (document.getElementsByClassName("placeTower"))) {
+                button.style.display = "none";
+            }
             cancelPlacingTowerButton.style.display = "inline";
             
             var explanation = document.getElementById("explanation");
             explanation.children[0].innerHTML = explanationParagraph;
             explanation.style.display = "inline";
         }
-
-        cancelPlacingTowerButton.onclick = cancelPlacingTower;
 
         // Blinking effect on "Sprite dialing..." key
         setInterval(function() {

@@ -83,7 +83,7 @@ circle.load-ring-cover {
 	width:20%;
 }
 
-#placeTower {
+.placeTower {
 	background-image:url('place-tower.png');
 	text-align:left;
 }
@@ -92,7 +92,7 @@ circle.load-ring-cover {
 	background-image:url('cancel-tower.png');
 }
 
-#placeTower, #cancelPlacingTower {
+#buttons > button {
 	display:none; /* JavaScript handles this, but buttons aren't visible before game start */
 	background-color:#003e77;
 	background-size:70% auto;
@@ -107,11 +107,11 @@ circle.load-ring-cover {
 	cursor:pointer;
 }
 
-#placeTower:hover, #cancelPlacingTower:hover {
+#buttons > button:hover {
 	background-color:#0167c4;
 }
 
-#placeTower p {
+.placeTower p {
 	position:relative;
 	bottom:3vh;
 	padding:0;
