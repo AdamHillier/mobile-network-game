@@ -41,15 +41,23 @@
     var towers;
     var TOWER_WIDTH = 12;
     var TOWER_HEIGHT = 12;
-    var TOWER_RANGE = 80; //originally 50, changed to 250 to test and illustrate tower load indication
-    var MAX_LOAD = 3; // Maximum number of calls each tower can handle simultaneously
+
+    /* the following two parameters are a list corresponding to different types of tower
+        e.g. TOWER_RANGE[1] corresponds to range of type 1 tower.
+        the 0-indexed element is null as the type of towers start from 1.
+        modify here if more types are introduced.
+    */
+    var TOWER_RANGE = [null, 100, 60];  
+    var MAX_LOAD = [null, 3, 5]; // Maximum number of calls each tower can handle simultaneously
 
     var TOWER_LOAD_VISUAL_RADIUS = 12;
     var TOWER_LOAD_VISUAL_CIRCUMFERENCE = 2 * Math.PI * TOWER_LOAD_VISUAL_RADIUS;
 
     var pendingActions = {
         none: 0,
-        placeTower: 1
+        placeTower1: 1, //place tower of type 1
+        placeTower2: 2  //place tower of type 2
+        //more actions here if more types are introduced
     };
     var currentPendingAction = pendingActions.none;
 
@@ -63,6 +71,7 @@
 
     var placeTowerButton;
     var cancelPlacingTowerButton;
+    var explanationParagraph;
 
         function initialiseSprites (n) {
             var numberOfNodes = adjMap["osm_nodes"].length;
@@ -207,11 +216,42 @@
             return [cx, cy];
         }
 
+        //helper function: detects if currentPendingAction is a placeTower action
+        //modify here if more types are introduced
+        function currentPendingActionIsPlaceTower() {
+            if (currentPendingAction === pendingActions.placeTower1 || 
+                currentPendingAction === pendingActions.placeTower2) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+
+        //helper function: if currentPendingAction is a placeTower action,
+        //return the type of tower to place.
+        //modify here if more types are introduced
+        function getTowerTypeToPlace() {
+            switch (currentPendingAction) {
+                case pendingActions.placeTower1:
+                    return 1;
+                case pendingActions.placeTower2:
+                    return 2;
+                default:
+                    return -1; //illegal
+            }
+        }
+
         //show indication of range before atually putting down the tower
         //range moves with mouse
         svg.onmousemove = function(event) {
             //check if player is going to place a tower
-            if (currentPendingAction === pendingActions.placeTower) {
+            if (currentPendingActionIsPlaceTower()) {
+
+                //get selected type of tower
+                var typeOfTower = getTowerTypeToPlace();
+                console.assert(typeOfTower > 0);
+
                 //get cursor location
                 var cxcy = getcxcy(event);
                 var cx = cxcy[0];
@@ -222,7 +262,7 @@
                 if (document.getElementById("tempRange") == null) {
                     //temporary range not found, create one
                     var range = document.createElementNS("http://www.w3.org/2000/svg", "circle"); // A circle indicating the geographical range covered by the tower
-                    range.setAttribute("r", TOWER_RANGE);
+                    range.setAttribute("r", TOWER_RANGE[typeOfTower]);
                     range.setAttribute("class", "range-indicator");
                     range.setAttribute("cx", cx);
                     range.setAttribute("cy", cy);
@@ -241,8 +281,15 @@
 
 
         svg.onclick = function(event) {
-            if (currentPendingAction === pendingActions.placeTower) {
-                cancelPlacingTower();
+            if (currentPendingActionIsPlaceTower()) {
+
+                //get selected type of tower
+                var typeOfTower = getTowerTypeToPlace();
+                console.assert(typeOfTower > 0);
+
+                //placingTower action is successful, end this action.
+                //Note: this must be done AFTER we get the type of tower to place, because that inspects the currentPendingAction, and cancelPlacingTower() sets it to none.
+                cancelPlacingTower(); 
 
                 if (getBalance() >= 50) {
                     //get cursor location
@@ -261,11 +308,11 @@
                     var towerId = towers.length;
                     tower.setAttribute("data-tower-id", towerId);
                     towerGroup.appendChild(tower); // Add the tower to the map
-                    towers.push(new Tower(towerId, new Position(cx, cy))); // Store the new tower
+                    towers.push(new Tower(towerId, new Position(cx, cy), typeOfTower)); // Store the new tower
 
                     //add range indication
                     var range = document.createElementNS("http://www.w3.org/2000/svg", "circle"); // A circle indicating the geographical range covered by the tower
-                    range.setAttribute("r", TOWER_RANGE);
+                    range.setAttribute("r", TOWER_RANGE[typeOfTower]);
                     range.setAttribute("cx", cx);
                     range.setAttribute("cy", cy);
                     range.setAttribute("class", "range-indicator");
@@ -320,7 +367,10 @@
         removeTempRange();
         currentPendingAction = pendingActions.none;
         cancelPlacingTowerButton.style.display = "none";
-        placeTowerButton.style.display = "inline";
+
+        //note that each click of a placeTowerX button will set the placeTowerButton variable to the corresponding one for type X.
+        placeTowerButton.style.display = "inline"; 
+
         //hide #explanation paragraph.
         document.getElementById("explanation").style.display = "none";
     }
@@ -440,7 +490,7 @@
                             clearInterval(ringRing);
                             if (handleCall(sprite)) {
                                 sprite.callStatus = spriteCallStatus.success;
-F                           } else {
+                            } else {
                                 sprite.callStatus = spriteCallStatus.failure;
                             }
                         }, params.callDuration/3);
@@ -460,7 +510,7 @@ F                           } else {
 
                     function handleCall(sprite) {
                         for(let tower of towers) {
-                            if ((sprite.pos.distanceTo(tower.pos) < TOWER_RANGE) && (tower.load < MAX_LOAD)) {
+                            if ((sprite.pos.distanceTo(tower.pos) < tower.range) && (tower.load < tower.capacity)) {
                                 // // If the sprite is in range of this tower
                                 // Increment tower.load here (once we implement a way of decrementing when the call finishes--presumably the sprite will have to make a note of which tower it's using)
                                 tower.incrementLoad();
@@ -487,10 +537,14 @@ F                           } else {
 
     //Towers
 
-    function Tower(id, pos) {
+    function Tower(id, pos, type) {
         this.id = id;
         this.pos = pos;
         this.load = 0; // Towers are initially handling 0 simultaneous calls
+
+        //towers have different types
+        this.range = TOWER_RANGE[type];
+        this.capacity = MAX_LOAD[type];
     };
 
     Tower.prototype.incrementLoad = function() {
@@ -503,7 +557,7 @@ F                           } else {
     //Tower load indication
     Tower.prototype.updateLoadIndication = function() {
         var loadVisualCover = document.getElementById("load-ring-cover" + this.id);
-        var offset = TOWER_LOAD_VISUAL_CIRCUMFERENCE * (1 - this.load / MAX_LOAD);
+        var offset = TOWER_LOAD_VISUAL_CIRCUMFERENCE * (1 - this.load / this.capacity);
         loadVisualCover.setAttribute("stroke-dashoffset", offset)
     }
 
@@ -592,22 +646,49 @@ F                           } else {
         //bind button actions
         var startGameButton = document.getElementById("commButton");
         startGameButton.onclick = function() {
-            document.getElementById("placeTower").style.display = "inline"; //show button for placing tower
+
+            //document.getElementById("placeTower").style.display = "inline"; //show button for placing tower
+
+            for (let button of (document.getElementsByClassName("placeTower"))) {
+                button.style.display = "inline";
+            }
+
             //starting and stopping the "time elapsed" chronometer is done by methods showing/hiding start'monthly feedback/endgame screens
             hideScreen();
             window.requestAnimationFrame(gameLoop);
         };
 
 
-        placeTowerButton = document.getElementById("placeTower");
         cancelPlacingTowerButton = document.getElementById("cancelPlacingTower");
+        explanation
 
-        placeTowerButton.onclick = function() {
-            currentPendingAction = pendingActions.placeTower;
+        document.getElementById("placeTower1").onclick = function() {
+            placeTower(1);
+        };
+        document.getElementById("placeTower2").onclick = function() {
+            placeTower(2);
+        };
+
+        function placeTower(type) { //place a specific type of tower
+            switch (type) {
+                case 1: //tower of type 1
+                    currentPendingAction = pendingActions.placeTower1;
+                    placeTowerButton = document.getElementById("placeTower1");
+                    explanationParagraph = "Click on map to place a tower with long radius."
+                    break;
+                case 2:
+                    currentPendingAction = pendingActions.placeTower2;
+                    placeTowerButton = document.getElementById("placeTower2");
+                    explanationParagraph = "Click on map to place a tower with high capacity."
+            };
+
             placeTowerButton.style.display = "none";
             cancelPlacingTowerButton.style.display = "inline";
-            document.getElementById("explanation").style.display = "inline"; //show explanation
-        };
+            
+            var explanation = document.getElementById("explanation");
+            explanation.children[0].innerHTML = explanationParagraph;
+            explanation.style.display = "inline";
+        }
 
         cancelPlacingTowerButton.onclick = cancelPlacingTower;
 

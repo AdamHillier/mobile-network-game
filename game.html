@@ -128,20 +128,37 @@
         <div id="action-bar">
             <div id="balanceDisplay">
                 Balance<br />
-                <span id="balance">100</span>¤
+                <span id="balance">200</span>¤
             </div>
+
+            <!-- TODO -->
             <div id="buttons">
+            <!-- removed the original placeTower button, and replace with new buttons placing specific types of towers. -->
+            <!-- 
                 <button type="button" id="placeTower">
                     <p>
                         <span id="towerPrice">50</span>¤
                     </p>
                 </button>
+            -->     
+
+                <p>
+                    <span id="towerPrice">50</span>¤ 
+                    <!-- apparently you can't just delete this span together with the old button, because its innerHTML is being used to getTowerPrice() and setTowerPrice() -->
+                </p>
+
                 <button type="button" id="cancelPlacingTower"></button>
+
+                <!-- buttons for placing different types of tower -->
+                <button type="button" class="placeTower" id="placeTower1">Place Tower of Type 1</button>
+                <button type="button" class="placeTower" id="placeTower2">Place Tower of Type 2</button>
+
             </div>
+            <!-- TODO FINISHED -->
 
             <div id="status">
                 <div id="explanation">
-                    <p>Click on map to place a tower.</p>
+                    <p id="explanationParagraph">Click on map to place a tower.</p>
                 </div>
                 <div id="balanceNotEnough">
                     <p>Your balance is not enough.</p>
