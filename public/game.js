@@ -437,6 +437,7 @@
                 this.elem = elem; // The SVG element representing the sprite
                 this.lastTower = null;
     }
+    var black_hole = {x:0, y:0};
     Sprite.prototype.update = function (tFrame) {
               // if sprite is idle, maybe place a call
                 if (this.callStatus === spriteCallStatus.none) { placeCallMaybe(this); }
@@ -450,10 +451,6 @@
         var dy = Math.sin(angle) * ds;
         var dx = Math.cos(angle) * ds;
 
-        if (this.pos.distanceTo(dest) < ds) {
-          console.log("overstep");
-        }
-
         this.pos.x += dx;
         this.pos.y += dy;
 
@@ -463,6 +460,30 @@
             this.previousNode = this.targetNode;
 
             // Set this this to face a random neighbour
+            // actually, no. Set this to face the neighbour with angle closest to the black hole with some reasonably high probability
+
+/*
+            var target_angle = Math.atan2(black_hole.y-this.pos.y, black_hole.x-this.pos.x);
+            var neighbours = adjMap["osm_adjacency"][this.previousNode];
+            var x = this.pos.x
+            var y = this.pos.y
+            var angle_offsets = neighbours.map(function(n) {
+                                                 var neighbour = getNodePosition(n);
+                                                 var angle = Math.atan2(neighbour.y-y, neighbour.x-x);
+                                                 return Math.abs(angle-target_angle);
+                                               });
+            var lowest = 0;
+            for (var i = 1; i < angle_offsets.length; i++) {
+              if (angle_offsets[i] < angle_offsets[lowest]) lowest = i;
+            }
+
+            //   ...and avoid going backwards
+            if (this.previousNode == neighbours[lowest]) {
+                randIndx = (randIndx + 1) % neighbours.length;
+            }
+            this.targetNode = neighbours[lowest];
+*/
+            
             var neighbours = adjMap["osm_adjacency"][this.previousNode];
             var randIndx = randomIntBound(neighbours.length);
             //   ...and avoid going backwards
