@@ -1,4 +1,4 @@
-#Map Generation Guide
+# Map Generation Guide
 
 The game requires:
  1. A logical route map which restricts the sprites' movement to certain straight lines.  Currently this is not explicitly displayed to the player, but can be inferred by watching the sprites' progress.
@@ -9,7 +9,7 @@ The cosmetic map is in `public/map.svg`, and a logical map is internally represe
  1. Source route data from OpenStreetMap
  2. Using a vector graphics editor (here Inkscape), draw straight-line paths
 
-##OpenStreetMap
+## OpenStreetMap
 
 [OpenStreetMap](http://www.openstreetmap.org) is a crowdsourced and freely editable map of the world, licensed under the [Open Database Licence](http://www.openstreetmap.org/copyright). The data is free to use, so long as the application credits the OpenStreeMap contributors and is distributed under the same license.
 
@@ -29,18 +29,18 @@ The cosmetic map SVG colours are based on the OpenStreetMap 'highway' distinctio
 Example usage: python geojson_converter.py bbox_oxford.geojson
 Dependencies: json, networkx, svgwrite, argparse. Install with pip (Python package manager)
 
-####Advantages:
+#### Advantages:
 * No manual path tracing or vector drawing
 * A player can recognise features from familiar places
 
-####Disadvantages:
+#### Disadvantages:
 * Since individual segments in OpenStreetMap tend to be short, the map bounding box has to be quite small, otherwise the graph complexity becomes intractable. This limits the potential of making maps representing large areas.
 * Lack of control over the map structure. The game places great emphasis on the map to direct the player's strategy, and sourcing real world data disgards the subtly necessary for good level design. For example, if variations in road density are too obvious to the player, they won't have many sensible options of where to put towers. Sprites tend to cluster around dense networks.
  * The cosmetic map, without intervention, only contains straight lines so looks somewhat artificial.
 
 > output needs modifying to match adj_graph.js
 
-##Using Inkscape
+## Using Inkscape
 
 [Inkscape](https://inkscape.org/) is a free, open-source vector graphics editor. Here, Inkscape serves a "level editor" using SVG. The logical map and the cosmetic map reside in the same file, but in different [layers](https://en.wikipedia.org/wiki/Layers_(digital_image_editing)).
 
@@ -59,10 +59,10 @@ On the other layers, you can add additional, non-interactive features like the r
 Example usage: python create_adj_map.py
 Dependencies: json, networkx, argparse. Install with pip (Python package manager)
 
-####Advantages:
+#### Advantages:
  * Gives much more control over the map structure
 
-####Disadvantages:
+#### Disadvantages:
  * Takes time to draw
 
 > check the sodipodi:nodetypes and reject any not matching `c+`
