@@ -27,6 +27,7 @@ While the raw route data extracted from OpenStreetMap essentially captures the s
 The cosmetic map SVG colours are based on the OpenStreetMap 'highway' distinction (specified in the dictionary called "route_colour")
 
 Example usage: python geojson_converter.py bbox_oxford.geojson
+
 Dependencies: json, networkx, svgwrite, argparse. Install with pip (Python package manager)
 
 #### Advantages:
@@ -54,7 +55,8 @@ Because the human tracing is imperfect, two points designed to be at the same in
 
 On the other layers, you can add additional, non-interactive features like the river, rail lines, parks, or well known landmarks. Here there is only a segment on the Thames.
 
-Example usage: python create_adj_map.py
+Example usage: python create_adj_map.py ../public/map.svg
+
 Dependencies: json, networkx, argparse. Install with pip (Python package manager)
 
 #### Advantages:
