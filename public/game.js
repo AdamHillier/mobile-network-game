@@ -28,9 +28,9 @@
     var rangeGroup;
     var towerLoadGroup;
 
-    var DEF_WIDTH = 450; // Default width (in px) of the map background image (not the same as the SVG element's width)
+    var DEF_WIDTH = 800; // Default width (in px) of the map background image (not the same as the SVG element's width)
     var DEF_HEIGHT = 450;
-    var mapScaling = 1.0; // Map magnification--might we want to allow this to vary and enable zooming?
+    var mapScaling; // Map magnification--might we want to allow this to vary and enable zooming?
 
     var adjMap;
 
