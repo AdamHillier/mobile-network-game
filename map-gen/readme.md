@@ -11,18 +11,18 @@ The cosmetic map is in `public/map.svg`, and a logical map is internally represe
 
 ## OpenStreetMap
 
-[OpenStreetMap](http://www.openstreetmap.org) is a crowdsourced and freely editable map of the world, licensed under the [Open Database Licence](http://www.openstreetmap.org/copyright). The data is free to use, so long as the application credits the OpenStreeMap contributors and is distributed under the same license.
+[OpenStreetMap](http://www.openstreetmap.org) is a crowdsourced and freely editable map of the world, licensed under the [Open Database Licence](http://www.openstreetmap.org/copyright). The data is free to use, so long as the application credits the OpenStreetMap contributors and is distributed under the same license.
 
 The website [Overpass Turbo](http://overpass-turbo.eu/) provides a useful interactive query interface to OpenStreetMap data. The user constructs a text query in the left-hand pane, and views the corresponding features in the right-hand pane. Documentation for the OpenStreetMap query language can be found [here](http://wiki.openstreetmap.org/wiki/Overpass_API/Overpass_QL). One sample query output is provided of Oxford city center (postcode OX1 3BW) in `map-gen/bbox_oxford.geojson`.
 
-To view the query online which generated this output, go [here](http://overpass-turbo.eu/s/oJs), which selects for public roads within a bounding box over Oxford. File `map-gen/overpass_turbo_query.txt` contains a copy of this query text. Further, we assume the OpenStreeMap data to export to .geojson. To acheive this on Overpass Turbo click on the "Export" tab along the top and select "geoJSON".
+To view the query online which generated this output, go [here](http://overpass-turbo.eu/s/oJs), which selects for public roads within a bounding box over Oxford. File `map-gen/overpass_turbo_query.txt` contains a copy of this query text. Further, we assume the OpenStreetMap data to export to .geojson. To achieve this on Overpass Turbo click on the "Export" tab along the top and select "geoJSON".
 
 The script `map-gen/geojson_converter.py`:
-1. Provides some simpilification of the data
+1. Provides some simplification of the data
 2. Produces an adjacency graph
 3. Produces a simple cosmetic map matching the data
 
-While the raw route data extracted from OpenStreetMap essentailly captures the structure of the road network, it's often incomplete. For example, an isloated path will cause any sprites generated there to simply walk up and down indefinitely. The Python library networkx filters out [connected components](https://en.wikipedia.org/wiki/Connected_component_%28graph_theory%29) with a node count below a specified threshold (command line option flag --min-cc-size, defaults to 100).
+While the raw route data extracted from OpenStreetMap essentially captures the structure of the road network, it's often incomplete. For example, an isolated path will cause any sprites generated there to simply walk up and down indefinitely. The Python library networkx filters out [connected components](https://en.wikipedia.org/wiki/Connected_component_%28graph_theory%29) with a node count below a specified threshold (command line option flag --min-cc-size, defaults to 100).
 
 The cosmetic map SVG colours are based on the OpenStreetMap 'highway' distinction (specified in the dictionary called "route_colour")
 
@@ -35,7 +35,7 @@ Dependencies: json, networkx, svgwrite, argparse. Install with pip (Python packa
 
 #### Disadvantages:
 * Since individual segments in OpenStreetMap tend to be short, the map bounding box has to be quite small, otherwise the graph complexity becomes intractable. This limits the potential of making maps representing large areas.
-* Lack of control over the map structure. The game places great emphasis on the map to direct the player's strategy, and sourcing real world data disgards the subtly necessary for good level design. For example, if variations in road density are too obvious to the player, they won't have many sensible options of where to put towers. Sprites tend to cluster around dense networks.
+* Lack of control over the map structure. The game places great emphasis on the map to direct the player's strategy, and sourcing real world data discards the subtly necessary for good level design. For example, if variations in road density are too obvious to the player, they won't have many sensible options of where to put towers. Sprites tend to cluster around dense networks.
  * The cosmetic map, without intervention, only contains straight lines so looks somewhat artificial.
 
 > output needs modifying to match adj_graph.js
