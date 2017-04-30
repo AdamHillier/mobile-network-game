@@ -38,8 +38,6 @@ Dependencies: json, networkx, svgwrite, argparse. Install with pip (Python packa
 * Lack of control over the map structure. The game places great emphasis on the map to direct the player's strategy, and sourcing real world data discards the subtly necessary for good level design. For example, if variations in road density are too obvious to the player, they won't have many sensible options of where to put towers. Sprites tend to cluster around dense networks.
  * The cosmetic map, without intervention, only contains straight lines so looks somewhat artificial.
 
-> output needs modifying to match adj_graph.js
-
 ## Using Inkscape
 
 [Inkscape](https://inkscape.org/) is a free, open-source vector graphics editor. Here, Inkscape serves a "level editor" using SVG. The logical map and the cosmetic map reside in the same file, but in different [layers](https://en.wikipedia.org/wiki/Layers_(digital_image_editing)).
