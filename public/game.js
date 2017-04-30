@@ -85,7 +85,7 @@
                     sprite.setAttribute("cx", getNodePosition(startNode).x);
                     sprite.setAttribute("cy", getNodePosition(startNode).y);
                     sprite.setAttribute("class", "person");
-                    sprite.setAttribute("fill", "#f0f");
+                    sprite.setAttribute("fill", spriteCallStatus.none);
                     sprite.setAttribute("data-sprite-id", i); // Might be redundant, but should be useful for debugging
                     peopleGroup.appendChild(sprite);
 
@@ -103,19 +103,23 @@
     function showStart() {
         toghrulsVariable = document.getElementById("map");
         toghrulsVariable.style.filter = "blur(5px)";
-        var startScreenSquare = document.getElementById("commScreen");
+        document.getElementById("start-screen").style.visibility = "visible";
+        /*var startScreenSquare = document.getElementById("commScreen");
         startScreenSquare.style.visibility = "visible";
         document.getElementById("message").innerHTML = "Welcome to &quot;Mobile Network Game&quot;. The objective of the game is to have non-negative balance of ¤ for as long as possible.";
         document.getElementById("p1").innerHTML = "Click on the tower icon (that wil soon appear) to place a tower. Towers initially cost 50¤, but their cost will gradually increase after every month. There is a monthly maintenance charge for each tower.";
         document.getElementById("p2").innerHTML = "Sprites on the map correspond to subscribers. They will periodically try to make a call and succeed iff they happen to be within range of an available tower.";
         document.getElementById("p3").innerHTML = "Towers can handle up to three concurrent calls. You will receive 5¤ for a successful call and lose 2¤ for a failed one.";
-        document.getElementById("p4").innerHTML = "Click the button below to start the game.";
+        document.getElementById("p4").innerHTML = "Click the button below to start the game.";*/
     }
     function hideScreen() {
         toghrulsVariable = document.getElementById("map");
         toghrulsVariable.style.filter = "blur(0px)";
-        var startScreenSquare = document.getElementById("commScreen");
-        startScreenSquare.style.visibility = "hidden";
+        for (let screen of (document.getElementsByClassName("screen"))) {
+            screen.style.visibility = "hidden";
+        }
+        /*var startScreenSquare = document.getElementById("commScreen");
+        startScreenSquare.style.visibility = "hidden";*/
         startTimer();
     }
 
@@ -125,7 +129,10 @@
         toghrulsVariable.style.filter = "blur(5px)";
         var timeSpan = document.getElementById("time");
         var score = parseInt(timeSpan.innerHTML);
-        var endScreenSquare = document.getElementById("commScreen");
+
+        document.getElementById("end-screen").style.visibility = "visible";
+
+        /*var endScreenSquare = document.getElementById("commScreen");
         endScreenSquare.style.visibility = "visible";
         document.getElementById("message").innerHTML = "Game over. Your network was functional for " + score.toString() + " seconds.";
         document.getElementById("p1").innerHTML = "During its lifetime, your network successfully handled "+totalSuccCalls+" calls, and failed to handle "+totalFailedCalls+".";
@@ -134,8 +141,8 @@
         document.getElementById("p4").innerHTML = "";
         document.getElementById("commButton").style.visibility = "hidden";
         var form = document.getElementById('submitForm');
-        form.style.display = '';
-        form.addEventListener('submit', function (event) {
+        form.style.display = '';*/
+        document.getElementById("submitForm").addEventListener('submit', function (event) {
             event.preventDefault();
             var httpRequest = new XMLHttpRequest();
             httpRequest.onload = handleResponse;
@@ -162,21 +169,25 @@
 
     function showMonthly() {
         stopTimer();
-    var cost = maintainTowers();
+        var cost = maintainTowers();
         toghrulsVariable = document.getElementById("map");
         toghrulsVariable.style.filter = "blur(5px)";
-        var startScreenSquare = document.getElementById("commScreen");
+
+
+        document.getElementById("monthly-screen").style.visibility = "visible";
+
+        /*var startScreenSquare = document.getElementById("commScreen");
         startScreenSquare.style.visibility = "visible";
         document.getElementById("message").innerHTML = "A month has passed. Here is the summary:";
-    document.getElementById("p1").innerHTML = "Calls attempted: "+(succCalls+failedCalls);
+        document.getElementById("p1").innerHTML = "Calls attempted: "+(succCalls+failedCalls);
         document.getElementById("p2").innerHTML = "Calls successfully handled by the network: "+succCalls;
         document.getElementById("p3").innerHTML = "You have been charged "+cost+"¤ for tower maintenance. A tower now costs "+getTowerPrice().toString()+"¤."
-        document.getElementById("p4").innerHTML = "Click the button below to continue the game."
+        document.getElementById("p4").innerHTML = "Click the button below to continue the game."*/
         succCalls = 0;
         failedCalls = 0;
-        var startGameButton = document.getElementById("commButton");
-        startGameButton.textContent = "continue game";
-        startGameButton.onclick = function() {
+        /*var startGameButton = document.getElementById("commButton");
+        startGameButton.textContent = "continue game";*/
+        document.getElementById("continue-btn").onclick = function() {
             hideScreen();
             unpause();
         };
@@ -645,15 +656,10 @@
                 };
 
         //bind button actions
-        var startGameButton = document.getElementById("commButton");
-        startGameButton.onclick = function() {
-
-            //document.getElementById("placeTower").style.display = "inline"; //show button for placing tower
-
+        document.getElementById("start-btn").onclick = function() {
             for (let button of (document.getElementsByClassName("placeTower"))) {
                 button.style.display = "inline";
             }
-
             //starting and stopping the "time elapsed" chronometer is done by methods showing/hiding start'monthly feedback/endgame screens
             hideScreen();
             window.requestAnimationFrame(gameLoop);

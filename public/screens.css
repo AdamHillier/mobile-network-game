@@ -1,0 +1,11 @@
+.screen {
+	position: absolute;
+    top: 100px;
+    left: 150px;
+    height: 600px;
+    width: 600px;
+    border: solid;
+    visibility: hidden;
+    background: #ffffff;
+}
+
