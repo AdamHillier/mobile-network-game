@@ -135,12 +135,11 @@
     var lastPaused; //the latest time when the game was paused by the game loop
 
     function showStart() {
-        var svg = document.getElementById("map");
         svg.style.filter = "blur(5px)";
         document.getElementById("start-screen").style.visibility = "visible";
     }
+    
     function hideScreen() {
-        var svg = document.getElementById("map");
         svg.style.filter = "blur(0px)";
         for (let screen of (document.getElementsByClassName("screen"))) {
             screen.style.visibility = "hidden";
@@ -150,7 +149,6 @@
 
     function endGame() {
         stopTimer();
-        svg = document.getElementById("map");
         svg.style.filter = "blur(5px)";
         var formFeedback = document.getElementById("form-feedback");
         formFeedback.style.display = 'none';
@@ -174,7 +172,6 @@
                 }
             }
         }, false);
-
         document.getElementById("end-screen").style.visibility = "visible";
     }
 
@@ -186,7 +183,6 @@
     function showMonthly() {
         stopTimer();
         var cost = maintainTowers();
-        var svg = document.getElementById("map");
         svg.style.filter = "blur(5px)";
 
         document.getElementById("continue-btn").onclick = function() {
@@ -639,7 +635,7 @@
         clearInterval(timer);
     }
     function hasMonthPassed(timestamp) {
-        return (timestamp - lastMonthStart > 10000);
+        return (timestamp - lastMonthStart > params.monthLength);
     }
     var currentMonth;
     setMonth(0);
