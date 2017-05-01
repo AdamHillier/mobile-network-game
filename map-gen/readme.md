@@ -41,19 +41,21 @@ Dependencies: json, networkx, svgwrite, argparse. Install with pip (Python packa
 
 ## Using Inkscape
 
-[Inkscape](https://inkscape.org/) is a free, open-source vector graphics editor. Here, Inkscape serves a "level editor" using SVG. The logical map and the cosmetic map reside in the same file, but in different [layers](https://en.wikipedia.org/wiki/Layers_(digital_image_editing)).
+[Inkscape](https://inkscape.org/) is a free, open-source vector graphics editor. Here, Inkscape serves as a "level editor" using SVG. The logical map and the cosmetic map reside in the same file, but in different [layers](https://en.wikipedia.org/wiki/Layers_(digital_image_editing)).
 
-Although all the lines and curve in the images below required manual drawing, a part of central London (postcode SE1 7PB) served as a guide for the road trajectories. The tiled map images were sourced from OpenStreetMap. The default map size is currently 450px by 450 px.
+Although all the lines and curves in the images below required manual drawing, a part of central London (postcode SE1 7PB) served as a guide for the road trajectories. The tiled map images were sourced from OpenStreetMap. The default map size is currently 800px by 450 px.
 
-Paths in SVG cannot have branches (as in, one point with more than two lines meeting there). However the logical map requires this, otherwise the sprites would be restricted to all walking around one big circle. The level designer is expected to use the path tool and draw segments representing the logical map (here, displayed as a black overlay).
+Paths in SVG cannot have branches (as in, one point with more than two lines meeting there). However the logical map requires this, otherwise the sprites would be restricted to all walking around one big circle. The level designer is expected to use the path tool and draw **straight line** segments representing the logical map (here, displayed as a black overlay).
+
+![Inkscape screencap](https://github.com/AdamHillier/mobile-network-game/raw/new-map/img/level-editing-crop.png)
 
 To this end, the script `map-gen/create_adj_map.py` gets the layer called 'lines' within the `public/map.svg` and:
 1. Merges nearby nodes
 2. Produces an adjacency graph
 
-Because the human tracing is imperfect, two points designed to be at the same intersection will be some way apart numerically. The current threshold is ten pixels separation. Be aware that nodes are only merged when two *points* coincide, not a point and a line.
+Because the human tracing is imperfect, two points designed to be at the same intersection will be some way apart numerically. The current threshold is ten pixels separation. Be aware that nodes are only merged when two *points* coincide, not a point and a line, nor two lines.
 
-On the other layers, you can add additional, non-interactive features like the river, rail lines, parks, or well known landmarks. Here there is only a segment on the Thames.
+On the other layers, you can add additional, non-interactive features like rivers, rail lines, parks, or well known landmarks. Here there is only a segment on the Thames.
 
 Example usage: python create_adj_map.py ../public/map.svg
 
@@ -64,5 +66,3 @@ Dependencies: json, networkx, argparse. Install with pip (Python package manager
 
 #### Disadvantages:
  * Takes time to draw
-
-> check the sodipodi:nodetypes and reject any not matching `c+`
