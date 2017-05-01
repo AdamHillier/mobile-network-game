@@ -47,7 +47,7 @@
         the 0-indexed element is null as the type of towers start from 1.
         modify here if more types are introduced.
     */
-    var TOWER_RANGE = [null, 100, 60];  
+    var TOWER_RANGE = [null, 100, 60];
     var MAX_LOAD = [null, 3, 5]; // Maximum number of calls each tower can handle simultaneously
 
     var TOWER_LOAD_VISUAL_RADIUS = 12;
@@ -219,7 +219,7 @@
         //helper function: detects if currentPendingAction is a placeTower action
         //modify here if more types are introduced
         function currentPendingActionIsPlaceTower() {
-            if (currentPendingAction === pendingActions.placeTower1 || 
+            if (currentPendingAction === pendingActions.placeTower1 ||
                 currentPendingAction === pendingActions.placeTower2) {
                 return true;
             }
@@ -289,7 +289,7 @@
 
                 //placingTower action is successful, end this action.
                 //Note: this must be done AFTER we get the type of tower to place, because that inspects the currentPendingAction, and cancelPlacingTower() sets it to none.
-                cancelPlacingTower(); 
+                cancelPlacingTower();
 
                 if (getBalance() >= 50) {
                     //get cursor location
@@ -369,7 +369,7 @@
         cancelPlacingTowerButton.style.display = "none";
 
         //note that each click of a placeTowerX button will set the placeTowerButton variable to the corresponding one for type X.
-        placeTowerButton.style.display = "inline"; 
+        placeTowerButton.style.display = "inline";
 
         //hide #explanation paragraph.
         document.getElementById("explanation").style.display = "none";
@@ -483,7 +483,7 @@
             }
             this.targetNode = neighbours[lowest];
 */
-            
+
             var neighbours = adjMap["osm_adjacency"][this.previousNode];
             var randIndx = randomIntBound(neighbours.length);
             //   ...and avoid going backwards
@@ -666,19 +666,16 @@
 
         //bind button actions
         var startGameButton = document.getElementById("commButton");
+
         startGameButton.onclick = function() {
-
-            //document.getElementById("placeTower").style.display = "inline"; //show button for placing tower
-
-            for (let button of (document.getElementsByClassName("placeTower"))) {
-                button.style.display = "inline";
+            var buttons = document.getElementsByClassName("placeTower");
+            for (var i = 0; i < buttons.length; i++) {
+                buttons[i].style.display = "inline";
             }
-
             //starting and stopping the "time elapsed" chronometer is done by methods showing/hiding start'monthly feedback/endgame screens
             hideScreen();
             window.requestAnimationFrame(gameLoop);
         };
-
 
         cancelPlacingTowerButton = document.getElementById("cancelPlacingTower");
         explanation
@@ -705,7 +702,7 @@
 
             placeTowerButton.style.display = "none";
             cancelPlacingTowerButton.style.display = "inline";
-            
+
             var explanation = document.getElementById("explanation");
             explanation.children[0].innerHTML = explanationParagraph;
             explanation.style.display = "inline";
