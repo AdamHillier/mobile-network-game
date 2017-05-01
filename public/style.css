@@ -1,12 +1,12 @@
 html, body {
-	height:100%;
-	margin:0;
-	padding:0;
+	height: 100%;
+	margin: 0;
+	padding: 0;
 }
 
 body {
-	background-color:#011829;
-	color:#003e77;
+	background-color: #011829;
+	color: #003e77;
 }
 
 #container {
@@ -14,7 +14,7 @@ body {
 	top: 0;
 	left: 0;
 	right: 0;
-	bottom: 62px;
+	bottom: 60px;
 }
 
 #map {
@@ -61,7 +61,7 @@ circle.load-ring-cover {
 	position:absolute;
 	left: 0;
 	bottom: 0;
-	height: 62px;
+	height: 60px;
 	width: 100%;
 	background-color: rgba(0, 0, 0, 0.3);
 }

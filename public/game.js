@@ -720,16 +720,6 @@
             explanation.style.display = "inline";
         }
 
-        // Blinking effect on "Sprite dialing..." key
-        setInterval(function() {
-            var style = document.getElementById("dialing").style;
-            if (style.color === "rgb(0, 255, 255)") {
-                style.color = spriteCallStatus.dialingPulse;
-            } else {
-                style.color = spriteCallStatus.dialing;
-            }
-        }, 500);
-
         //initialise game
         initialise();
     });
