@@ -36,8 +36,8 @@
             <h2>Game status:</h2>
 
             <div><span id="gameOver">Game over!</span></div>
-            <div id="monthDisplay" class="monthly">Month: <span id="month">0</span></div>
-            <div id="timeDisplay">Time elapsed: <span id="time">0</span> sec</div>
+            <div id="monthDisplay" class="monthly">Month: <span class="month-display"></span></div>
+            <div id="timeDisplay">Time elapsed: <span class="time-display"></span> sec</div>
         </div>
 
         <div id="container">
@@ -53,33 +53,24 @@
         <div id="action-bar">
             <div id="balanceDisplay">
                 Balance<br />
-                <span id="balance">200</span>¤
+                <span class="balance-display"></span>¤
             </div>
 
-            <!-- TODO -->
             <div id="buttons">
-            <!-- removed the original placeTower button, and replace with new buttons placing specific types of towers. -->
-            <!--
-                <button type="button" id="placeTower">
-                    <p>
-                        <span id="towerPrice">50</span>¤
-                    </p>
-                </button>
-            -->
-
-                <p>
-                    <span id="towerPrice">50</span>¤
-                    <!-- apparently you can't just delete this span together with the old button, because its innerHTML is being used to getTowerPrice() and setTowerPrice() -->
-                </p>
-
                 <button type="button" id="cancelPlacingTower"></button>
 
                 <!-- buttons for placing different types of tower -->
-                <button type="button" class="placeTower" id="placeTower1">Place Tower of Type 1</button>
-                <button type="button" class="placeTower" id="placeTower2">Place Tower of Type 2</button>
-
+                <button type="button" class="placeTower" id="placeTower1">
+                	<p>
+                        <span class="tower-price-display"></span>¤
+                    </p>
+                </button>
+                <button type="button" class="placeTower" id="placeTower2">
+                	<p>
+                        <span class="tower-price-display"></span>¤
+                    </p>
+                </button>
             </div>
-            <!-- TODO FINISHED -->
 
             <div id="status">
                 <div id="explanation">
@@ -98,14 +89,34 @@
             </div>
         </div>
 
-        <div id="commScreen">
-            <p id="message"></p>
-            <br>
-            <form id='submitForm' action='submit-score' method='post' style='display: none;'>
+        <div class="screen" id="start-screen">
+    		<p>Welcome to &quot;Mobile Network Game&quot;. The objective of the game is to have non-negative balance of ¤ for as long as possible.</p>
+    		<p>Click on the tower icon (that will soon appear) to place a tower. Towers initially cost <span class="tower-price-display"></span>¤, but their cost will gradually increase after every month. There is a monthly maintenance charge for each tower.</p>
+    		<p>Sprites on the map correspond to subscribers. They will periodically try to make a call and succeed iff they happen to be within range of an available tower.</p>
+    		<p>Towers can handle up to three concurrent calls. You will receive 5¤ for a successful call and lose 2¤ for a failed one.</p>
+    		<p>Click the button below to start the game.</p>
+    		<button type="button" id="start-btn">Start game</button>
+        </div>
+
+        <div class="screen" id="end-screen">
+    		<p>Game over. Your network was functional for <span class="time-display"></span> seconds.</p>
+    		<p>During its lifetime, your network successfully handled <span class="total-succ-display"></span> calls, and failed to handle <span class="total-fail-display"></span>.</p>
+    		<p>Overall, you managed to place <span class="towers-display"></span> tower(s).</p>
+    		<p>If you'd like to be considered for career opportunities, please submit your score below!</p>
+    		<form id='submitForm' action='submit-score' method='post'>
                 <input id='email-input' type='email' placeholder='Email' autofocus required>
                 <button type="submit" id="formSubmit">Send</button>
             </form>
-            <button type="button" id="commButton">Start game</button>
+            <p id="form-feedback">Your information has been sent.</p>
+        </div>
+
+        <div class="screen" id="monthly-screen">
+    		<p>A month has passed. Here is the summary:</p>
+    		<p>Calls attempted: <span class="calls-display"></span></p>
+    		<p>Calls successfully handled by the network: <span class="succ-display"></span></p>
+    		<p>You have been charged <span class="maintenance-display"></span>¤ for tower maintenance. A tower now costs <span class="tower-price-display"></span>¤.</p>
+    		<p>Click the button below to continue the game.</p>
+    		<button type="button" id="continue-btn">Continue game</button>
         </div>
 
         <script type="text/javascript" src="buffer-loader.js"></script>

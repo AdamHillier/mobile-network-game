@@ -14,13 +14,42 @@
         monthLength: 10000                  // In milliseconds
     };
 
+    function fillElemsOfClass(className, content) {
+        for (let el of document.getElementsByClassName(className)) {
+            el.innerHTML = content;
+        }
+    }
+
     // Monthly stats
-    var succCalls = 0;
-    var failedCalls = 0;
+    var succCalls;
+    setSuccCalls(0);
+    function setSuccCalls(v) {
+        succCalls = v;
+        fillElemsOfClass("succ-display", v);
+        fillElemsOfClass("calls-display", v + failedCalls);
+    }
+
+    var failedCalls;
+    setFailedCalls(0);
+    function setFailedCalls(v) {
+        failedCalls = v;
+        fillElemsOfClass("fail-display", v);
+        fillElemsOfClass("calls-display", succCalls + v);
+    }
 
     // Game stats
-    var totalSuccCalls = 0
-    var totalFailedCalls = 0;
+    var totalSuccCalls;
+    setTotalSuccCalls(0);
+    function setTotalSuccCalls(v) {
+        totalSuccCalls = v;
+        fillElemsOfClass("total-succ-display", v);
+    }
+    var totalFailedCalls;
+    setTotalFailedCalls(0);
+    function setTotalFailedCalls(v) {
+        totalFailedCalls = v;
+        fillElemsOfClass("total-fail-display", v);
+    }
 
     // 'Global' variables
     var svg;
@@ -84,7 +113,7 @@
             sprite.setAttribute("cx", getNodePosition(startNode).x);
             sprite.setAttribute("cy", getNodePosition(startNode).y);
             sprite.setAttribute("class", "person");
-            sprite.setAttribute("fill", "#f0f");
+            sprite.setAttribute("fill", spriteCallStatus.none);
             sprite.setAttribute("data-sprite-id", i); // Might be redundant, but should be useful for debugging
             peopleGroup.appendChild(sprite);
 
@@ -93,27 +122,29 @@
             sprites.push(new Sprite(id, startNode, neighbours[randIndx], getNodePosition(startNode), sprite));
         }
     }
-//
+
+    var gameTime; // Total amount of time the game has been playing (unpaused) for
+    setGameTime(0);
+    function setGameTime(v) {
+        gameTime = v;
+        fillElemsOfClass("time-display", v);
+    }
     var timer; //the "time elapsed" chronometer
-//    var GAME_PAUSED = false;
+    //    var GAME_PAUSED = false;
     var GAME_UNPAUSED = false;
     var lastPaused; //the latest time when the game was paused by the game loop
+
     function showStart() {
-        svg = document.getElementById("map");
+        var svg = document.getElementById("map");
         svg.style.filter = "blur(5px)";
-        var startScreenSquare = document.getElementById("commScreen");
-        startScreenSquare.style.visibility = "visible";
-        document.getElementById("message").innerHTML = "Welcome to &quot;Mobile Network Game&quot;. The objective of the game is to have non-negative balance of ¤ for as long as possible."
-                + "<br><br>Click on the tower icon (that wil soon appear) to place a tower. Towers initially cost 50¤, but their cost will gradually increase after every month. There is a monthly maintenance charge for each tower."
-                + "<br><br>Sprites on the map correspond to subscribers. They will periodically try to make a call and succeed iff they happen to be within range of an available tower."
-                + "<br><br>Towers can handle up to three concurrent calls. You will receive 5¤ for a successful call and lose 2¤ for a failed one."
-                + "<br><br>Click the button below to start the game.";
+        document.getElementById("start-screen").style.visibility = "visible";
     }
     function hideScreen() {
-        svg = document.getElementById("map");
+        var svg = document.getElementById("map");
         svg.style.filter = "blur(0px)";
-        var startScreenSquare = document.getElementById("commScreen");
-        startScreenSquare.style.visibility = "hidden";
+        for (let screen of (document.getElementsByClassName("screen"))) {
+            screen.style.visibility = "hidden";
+        }
         startTimer();
     }
 
@@ -121,35 +152,30 @@
         stopTimer();
         svg = document.getElementById("map");
         svg.style.filter = "blur(5px)";
-        var timeSpan = document.getElementById("time");
-        var score = parseInt(timeSpan.innerHTML);
-        var endScreenSquare = document.getElementById("commScreen");
-        endScreenSquare.style.visibility = "visible";
-        document.getElementById("message").innerHTML = "Game over. Your network was functional for " + score.toString() + " seconds."
-                + "<br><br>During its lifetime, your network successfully handled "+totalSuccCalls+" calls, and failed to handle " + totalFailedCalls + "."
-                + "<br><br>Overall, you managed to place "+towers.length+" tower(s)."
-                + "<br><br>If you'd like to be considered for career opportunities, please submit your score below!";
-        document.getElementById("commButton").style.visibility = "hidden";
+        var formFeedback = document.getElementById("form-feedback");
+        formFeedback.style.display = 'none';
         var form = document.getElementById('submitForm');
-        form.style.display = '';
+        form.style.display = 'block';
         form.addEventListener('submit', function (event) {
             event.preventDefault();
             var httpRequest = new XMLHttpRequest();
             httpRequest.onload = handleResponse;
             httpRequest.open('POST', '/submit-score', true);
             httpRequest.setRequestHeader("Content-Type", "application/json");
-            httpRequest.send(JSON.stringify({ email: document.getElementById('email-input').value, score: score.toString() }));
+            httpRequest.send(JSON.stringify({ email: document.getElementById('email-input').value, score: gameTime }));
             function handleResponse() {
                 if (httpRequest.readyState === XMLHttpRequest.DONE) {
                     if (httpRequest.status === 200) {
                         form.style.display = 'none';
-                        document.getElementById('message').innerHTML += '<br><br>Thank you, your score has now been submitted.'
+                        formFeedback.style.display = 'block';
                     } else {
                         alert('There was a problem with the request. Please make sure you enter a valid email address.');
                     }
                 }
             }
         }, false);
+
+        document.getElementById("end-screen").style.visibility = "visible";
     }
 
     function unpause() {
@@ -160,23 +186,17 @@
     function showMonthly() {
         stopTimer();
         var cost = maintainTowers();
-        svg = document.getElementById("map");
+        var svg = document.getElementById("map");
         svg.style.filter = "blur(5px)";
-        var startScreenSquare = document.getElementById("commScreen");
-        startScreenSquare.style.visibility = "visible";
-        document.getElementById("message").innerHTML = "A month has passed. Here is the summary:"
-                + "<br><br>Calls attempted: " + (succCalls + failedCalls)
-                + "<br><br>Calls successfully handled by the network: " + succCalls
-                + "<br><br>You have been charged "+cost+"¤ for tower maintenance. A tower now costs " + getTowerPrice().toString() + "¤."
-                + "<br><br>Click the button below to continue the game."
-        succCalls = 0;
-        failedCalls = 0;
-        var startGameButton = document.getElementById("commButton");
-        startGameButton.textContent = "Continue game";
-        startGameButton.onclick = function() {
+
+        document.getElementById("continue-btn").onclick = function() {
             hideScreen();
             unpause();
+            setSuccCalls(0);
+            setFailedCalls(0);
         };
+
+        document.getElementById("monthly-screen").style.visibility = "visible";
     }
 //
 
@@ -276,7 +296,7 @@
                 //Note: this must be done AFTER we get the type of tower to place, because that inspects the currentPendingAction, and cancelPlacingTower() sets it to none.
                 cancelPlacingTower();
 
-                if (getBalance() >= 50) {
+                if (getBalance() >= getTowerPrice()) {
                     //get cursor location
                     //extracted out the function getcxcy because it's also used in svg.onmousemove
                     var cxcy = getcxcy(event);
@@ -293,7 +313,7 @@
                     var towerId = towers.length;
                     tower.setAttribute("data-tower-id", towerId);
                     towerGroup.appendChild(tower); // Add the tower to the map
-                    towers.push(new Tower(towerId, new Position(cx, cy), typeOfTower)); // Store the new tower
+                    new Tower(towerId, new Position(cx, cy), typeOfTower); // Store the new tower
 
                     //add range indication
                     var range = document.createElementNS("http://www.w3.org/2000/svg", "circle"); // A circle indicating the geographical range covered by the tower
@@ -349,8 +369,9 @@
         currentPendingAction = pendingActions.none;
         cancelPlacingTowerButton.style.display = "none";
 
-        //note that each click of a placeTowerX button will set the placeTowerButton variable to the corresponding one for type X.
-        placeTowerButton.style.display = "inline";
+        for (let button of (document.getElementsByClassName("placeTower"))) {
+            button.style.display = "inline";
+        }
 
         //hide #explanation paragraph.
         document.getElementById("explanation").style.display = "none";
@@ -511,7 +532,7 @@
             }
 
             function handleCall(sprite) {
-                for (let tower of towers) {
+                for(let tower of towers) {
                     if ((sprite.pos.distanceTo(tower.pos) < tower.range) && (tower.load < tower.capacity)) {
                         // // If the sprite is in range of this tower
                         // Increment tower.load here (once we implement a way of decrementing when the call finishes--presumably the sprite will have to make a note of which tower it's using)
@@ -523,15 +544,15 @@
                         sprite.lastTower = tower;
                         incrementBalance(params.successCallCredit);
                         playSound(CALL_SUCCESS);
-                        totalSuccCalls = totalSuccCalls + 1;
-                        succCalls = succCalls + 1;
+                        setTotalSuccCalls(totalSuccCalls + 1);
+                        setSuccCalls(succCalls + 1);
                         return true;
                     }
                 }
                 incrementBalance(params.failureCallCredit);
                 playSound(CALL_FAIL);
-                totalFailedCalls = totalFailedCalls + 1;
-                failedCalls = failedCalls + 1;
+                setTotalFailedCalls(totalFailedCalls + 1);
+                setFailedCalls(failedCalls + 1);
                 return false;
             }
         }
@@ -547,6 +568,8 @@
         //towers have different types
         this.range = TOWER_RANGE[type];
         this.capacity = MAX_LOAD[type];
+        towers.push(this);
+        fillElemsOfClass("towers-display", towers.length);
     };
 
     Tower.prototype.incrementLoad = function() {
@@ -575,21 +598,26 @@
     };
 
     // Budgetry
+    var balance;
+    setBalance(200);
     function getBalance() {
-        return parseInt(document.getElementById("balance").innerHTML);
+        return balance;
     }
     function setBalance(newBalance) {
-        document.getElementById("balance").innerHTML = ""+newBalance;
+        balance = newBalance;
+        fillElemsOfClass("balance-display", newBalance);
     }
     function incrementBalance(by) {
         setBalance(getBalance()+by);
-        if (getBalance() < 0) { document.getElementById("gameOver").style.display = "inline"; }
     }
+    var towerPrice;
+    setTowerPrice(50);
     function getTowerPrice() {
-        return parseInt(document.getElementById("towerPrice").innerHTML);
+        return towerPrice;
     }
     function setTowerPrice(newPrice) {
-        document.getElementById("towerPrice").innerHTML = ""+newPrice;
+        towerPrice = newPrice;
+        fillElemsOfClass("tower-price-display", newPrice);
     }
     function incrementTowerPrice(by) {
         setTowerPrice(getTowerPrice()+by);
@@ -597,27 +625,30 @@
     function maintainTowers() {
         var cost = towers.length * 5;
         setBalance(getBalance() - cost);
+        fillElemsOfClass("maintenance-display", cost);
         return cost;
     }
 
     // Timekeeping
     function startTimer() {
-        timer = setInterval(function () {
-            var timeSpan = document.getElementById("time");
-            timeSpan.innerHTML = parseInt(timeSpan.innerHTML)+1;
+        timer = setInterval(function(){
+            setGameTime(gameTime + 1);
         }, 1000);
     }
     function stopTimer() {
         clearInterval(timer);
     }
     function hasMonthPassed(timestamp) {
-        return (timestamp - lastMonthStart > params.monthLength);
+        return (timestamp - lastMonthStart > 10000);
     }
+    var currentMonth;
+    setMonth(0);
     function getMonth() {
-        return parseInt(document.getElementById("month").innerHTML);
+        return currentMonth;
     }
     function setMonth(newMonth) {
-        document.getElementById("month").innerHTML = ""+newMonth;
+        currentMonth = newMonth;
+        fillElemsOfClass("month-display", newMonth);
     }
     function incrementMonth(by) {
         setMonth(getMonth()+by);
@@ -646,12 +677,9 @@
         };
 
         //bind button actions
-        var startGameButton = document.getElementById("commButton");
-
-        startGameButton.onclick = function () {
-            var buttons = document.getElementsByClassName("placeTower");
-            for (var i = 0; i < buttons.length; i++) {
-                buttons[i].style.display = "inline";
+        document.getElementById("start-btn").onclick = function () {
+            for (let button of (document.getElementsByClassName("placeTower"))) {
+                button.style.display = "inline";
             }
             //starting and stopping the "time elapsed" chronometer is done by methods showing/hiding start'monthly feedback/endgame screens
             hideScreen();
@@ -659,6 +687,7 @@
         };
 
         cancelPlacingTowerButton = document.getElementById("cancelPlacingTower");
+        cancelPlacingTowerButton.onclick = cancelPlacingTower;
 
         document.getElementById("placeTower1").onclick = function() {
             placeTower(1);
@@ -681,15 +710,15 @@
                     explanationParagraph = "Click on map to place a tower with high capacity."
             };
 
-            placeTowerButton.style.display = "none";
+            for (let button of (document.getElementsByClassName("placeTower"))) {
+                button.style.display = "none";
+            }
             cancelPlacingTowerButton.style.display = "inline";
 
             var explanation = document.getElementById("explanation");
             explanation.children[0].innerHTML = explanationParagraph;
             explanation.style.display = "inline";
         }
-
-        cancelPlacingTowerButton.onclick = cancelPlacingTower;
 
         // Blinking effect on "Sprite dialing..." key
         setInterval(function() {
