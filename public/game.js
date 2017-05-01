@@ -13,13 +13,42 @@
         failureCallCredit: -2
     };
 
+    function fillElemsOfClass(className, content) {
+        for (let el of document.getElementsByClassName(className)) {
+            el.innerHTML = content;
+        }
+    }
+
     // Monthly stats
-    var succCalls = 0;
-    var failedCalls = 0;
+    var succCalls;
+    setSuccCalls(0);
+    function setSuccCalls(v) {
+        succCalls = v;
+        fillElemsOfClass("succ-display", v);
+        fillElemsOfClass("calls-display", v + failedCalls);
+    }
+
+    var failedCalls;
+    setFailedCalls(0);
+    function setFailedCalls(v) {
+        failedCalls = v;
+        fillElemsOfClass("fail-display", v);
+        fillElemsOfClass("calls-display", succCalls + v);
+    }
 
     // Game stats
-    var totalSuccCalls = 0
-    var totalFailedCalls = 0;
+    var totalSuccCalls;
+    setTotalSuccCalls(0);
+    function setTotalSuccCalls(v) {
+        totalSuccCalls = v;
+        fillElemsOfClass("total-succ-display", v);
+    }
+    var totalFailedCalls;
+    setTotalFailedCalls(0);
+    function setTotalFailedCalls(v) {
+        totalFailedCalls = v;
+        fillElemsOfClass("total-fail-display", v);
+    }
 
     // 'Global' variables
     var svg;
@@ -94,55 +123,37 @@
                     sprites.push(new Sprite(id, startNode, neighbours[randIndx], getNodePosition(startNode), sprite));
             }
         }
-//
-    var toghrulsVariable;
+
+    var gameTime; // Total amount of time the game has been playing (unpaused) for
+    setGameTime(0);
+    function setGameTime(v) {
+        gameTime = v;
+        fillElemsOfClass("time-display", v);
+    }
     var timer; //the "time elapsed" chronometer
 //    var GAME_PAUSED = false;
     var GAME_UNPAUSED = false;
     var lastPaused; //the latest time when the game was paused by the game loop
     function showStart() {
-        toghrulsVariable = document.getElementById("map");
-        toghrulsVariable.style.filter = "blur(5px)";
+        svg.style.filter = "blur(5px)";
         document.getElementById("start-screen").style.visibility = "visible";
-        /*var startScreenSquare = document.getElementById("commScreen");
-        startScreenSquare.style.visibility = "visible";
-        document.getElementById("message").innerHTML = "Welcome to &quot;Mobile Network Game&quot;. The objective of the game is to have non-negative balance of ¤ for as long as possible.";
-        document.getElementById("p1").innerHTML = "Click on the tower icon (that wil soon appear) to place a tower. Towers initially cost 50¤, but their cost will gradually increase after every month. There is a monthly maintenance charge for each tower.";
-        document.getElementById("p2").innerHTML = "Sprites on the map correspond to subscribers. They will periodically try to make a call and succeed iff they happen to be within range of an available tower.";
-        document.getElementById("p3").innerHTML = "Towers can handle up to three concurrent calls. You will receive 5¤ for a successful call and lose 2¤ for a failed one.";
-        document.getElementById("p4").innerHTML = "Click the button below to start the game.";*/
     }
     function hideScreen() {
-        toghrulsVariable = document.getElementById("map");
-        toghrulsVariable.style.filter = "blur(0px)";
+        svg.style.filter = "blur(0px)";
         for (let screen of (document.getElementsByClassName("screen"))) {
             screen.style.visibility = "hidden";
         }
-        /*var startScreenSquare = document.getElementById("commScreen");
-        startScreenSquare.style.visibility = "hidden";*/
         startTimer();
     }
 
     function endGame() {
         stopTimer();
-        toghrulsVariable = document.getElementById("map");
-        toghrulsVariable.style.filter = "blur(5px)";
-        var timeSpan = document.getElementById("time");
-        var score = parseInt(timeSpan.innerHTML);
-
-        document.getElementById("end-screen").style.visibility = "visible";
-
-        /*var endScreenSquare = document.getElementById("commScreen");
-        endScreenSquare.style.visibility = "visible";
-        document.getElementById("message").innerHTML = "Game over. Your network was functional for " + score.toString() + " seconds.";
-        document.getElementById("p1").innerHTML = "During its lifetime, your network successfully handled "+totalSuccCalls+" calls, and failed to handle "+totalFailedCalls+".";
-        document.getElementById("p2").innerHTML = "Overall, you managed to place "+towers.length+" tower(s).";
-        document.getElementById("p3").innerHTML = "If you'd like to be considered for career opportunities, please submit your score below!";
-        document.getElementById("p4").innerHTML = "";
-        document.getElementById("commButton").style.visibility = "hidden";
+        svg.style.filter = "blur(5px)";
+        var formFeedback = document.getElementById("form-feedback");
+        formFeedback.style.display = 'none';
         var form = document.getElementById('submitForm');
-        form.style.display = '';*/
-        document.getElementById("submitForm").addEventListener('submit', function (event) {
+        form.style.display = 'block';
+        form.addEventListener('submit', function (event) {
             event.preventDefault();
             var httpRequest = new XMLHttpRequest();
             httpRequest.onload = handleResponse;
@@ -153,13 +164,15 @@
                 if (httpRequest.readyState === XMLHttpRequest.DONE) {
                     if (httpRequest.status === 200) {
                         form.style.display = 'none';
-                        document.getElementById('p4').innerHTML = 'Thank you, your score has now been submitted.'
+                        formFeedback.style.display = 'block';
                     } else {
                         alert('There was a problem with the request. Please make sure you enter a valid email address.');
                     }
                 }
             }
         }, false);
+
+        document.getElementById("end-screen").style.visibility = "visible";
     }
 
     function unpause() {
@@ -170,27 +183,16 @@
     function showMonthly() {
         stopTimer();
         var cost = maintainTowers();
-        toghrulsVariable = document.getElementById("map");
-        toghrulsVariable.style.filter = "blur(5px)";
+        svg.style.filter = "blur(5px)";
 
-
-        document.getElementById("monthly-screen").style.visibility = "visible";
-
-        /*var startScreenSquare = document.getElementById("commScreen");
-        startScreenSquare.style.visibility = "visible";
-        document.getElementById("message").innerHTML = "A month has passed. Here is the summary:";
-        document.getElementById("p1").innerHTML = "Calls attempted: "+(succCalls+failedCalls);
-        document.getElementById("p2").innerHTML = "Calls successfully handled by the network: "+succCalls;
-        document.getElementById("p3").innerHTML = "You have been charged "+cost+"¤ for tower maintenance. A tower now costs "+getTowerPrice().toString()+"¤."
-        document.getElementById("p4").innerHTML = "Click the button below to continue the game."*/
-        succCalls = 0;
-        failedCalls = 0;
-        /*var startGameButton = document.getElementById("commButton");
-        startGameButton.textContent = "continue game";*/
         document.getElementById("continue-btn").onclick = function() {
             hideScreen();
             unpause();
+            setSuccCalls(0);
+            setFailedCalls(0);
         };
+
+        document.getElementById("monthly-screen").style.visibility = "visible";
     }
 //
 
@@ -319,7 +321,7 @@
                     var towerId = towers.length;
                     tower.setAttribute("data-tower-id", towerId);
                     towerGroup.appendChild(tower); // Add the tower to the map
-                    towers.push(new Tower(towerId, new Position(cx, cy), typeOfTower)); // Store the new tower
+                    new Tower(towerId, new Position(cx, cy), typeOfTower); // Store the new tower
 
                     //add range indication
                     var range = document.createElementNS("http://www.w3.org/2000/svg", "circle"); // A circle indicating the geographical range covered by the tower
@@ -533,15 +535,15 @@
                                 sprite.lastTower = tower;
                                 incrementBalance(params.successCallCredit);
                 playSound(CALL_SUCCESS);
-                                totalSuccCalls = totalSuccCalls + 1;
-                                succCalls = succCalls + 1;
+                                setTotalSuccCalls(totalSuccCalls + 1);
+                                setSuccCalls(succCalls + 1);
                                 return true;
                             }
                         }
                         incrementBalance(params.failureCallCredit);
             playSound(CALL_FAIL);
-                        totalFailedCalls = totalFailedCalls + 1;
-                        failedCalls = failedCalls + 1;
+                        setTotalFailedCalls(totalFailedCalls + 1);
+                        setFailedCalls(failedCalls + 1);
                         return false;
                     }
                 }
@@ -557,6 +559,8 @@
         //towers have different types
         this.range = TOWER_RANGE[type];
         this.capacity = MAX_LOAD[type];
+        towers.push(this);
+        fillElemsOfClass("towers-display", towers.length);
     };
 
     Tower.prototype.incrementLoad = function() {
@@ -585,21 +589,26 @@
     };
 
         // Budgetry
+        var balance;
+        setBalance(200);
         function getBalance() {
-            return parseInt(document.getElementById("balance").innerHTML);
+            return balance;
         }
         function setBalance(newBalance) {
-            document.getElementById("balance").innerHTML = ""+newBalance;
+            balance = newBalance;
+            fillElemsOfClass("balance-display", newBalance);
         }
         function incrementBalance(by) {
             setBalance(getBalance()+by);
-            if (getBalance() < 0) { document.getElementById("gameOver").style.display = "inline"; }
         }
+        var towerPrice;
+        setTowerPrice(50);
         function getTowerPrice() {
-            return parseInt(document.getElementById("towerPrice").innerHTML);
+            return towerPrice;
         }
         function setTowerPrice(newPrice) {
-            document.getElementById("towerPrice").innerHTML = ""+newPrice;
+            towerPrice = newPrice;
+            fillElemsOfClass("tower-price-display", newPrice);
         }
         function incrementTowerPrice(by) {
             setTowerPrice(getTowerPrice()+by);
@@ -607,27 +616,30 @@
         function maintainTowers() {
             var cost = towers.length * 5;
             setBalance(getBalance() - cost);
+            fillElemsOfClass("maintenance-display", cost);
             return cost;
         }
 
         // Timekeeping
-                function startTimer() {
-                    timer = setInterval(function(){
-                var timeSpan = document.getElementById("time");
-                timeSpan.innerHTML = parseInt(timeSpan.innerHTML)+1;
+        function startTimer() {
+            timer = setInterval(function(){
+                setGameTime(gameTime + 1);
             }, 1000);
-                }
-                function stopTimer() {
+        }
+        function stopTimer() {
             clearInterval(timer);
         }
         function hasMonthPassed(timestamp) {
             return (timestamp - lastMonthStart > 10000);
         }
+        var currentMonth;
+        setMonth(0);
         function getMonth() {
-            return parseInt(document.getElementById("month").innerHTML);
+            return currentMonth;
         }
         function setMonth(newMonth) {
-            document.getElementById("month").innerHTML = ""+newMonth;
+            currentMonth = newMonth;
+            fillElemsOfClass("month-display", newMonth);
         }
         function incrementMonth(by) {
             setMonth(getMonth()+by);

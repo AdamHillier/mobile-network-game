@@ -36,9 +36,6 @@
                 display: none;
             }
 
-            .monthly {
-                display: none;
-            }
             #commScreen {
                 position: absolute;
                 top: 100px;
@@ -112,8 +109,8 @@
             <h2>Game status:</h2>
 
             <div><span id="gameOver">Game over!</span></div>
-            <div id="monthDisplay" class="monthly">Month: <span id="month">0</span></div>
-            <div id="timeDisplay">Time elapsed: <span id="time">0</span> sec</div>
+            <div id="monthDisplay" class="monthly">Month: <span class="month-display"></span></div>
+            <div id="timeDisplay">Time elapsed: <span class="time-display"></span> sec</div>
         </div>
 
         <div id="container">
@@ -129,7 +126,7 @@
         <div id="action-bar">
             <div id="balanceDisplay">
                 Balance<br />
-                <span id="balance">200</span>¤
+                <span class="balance-display"></span>¤
             </div>
 
             <!-- TODO -->
@@ -139,12 +136,12 @@
                 <!-- buttons for placing different types of tower -->
                 <button type="button" class="placeTower" id="placeTower1">
                 		<p>
-                        <span id="towerPrice">50</span>¤
+                        <span class="tower-price-display"></span>¤
                     </p>
                 </button>
                 <button type="button" class="placeTower" id="placeTower2">
                 		<p>
-                        Same
+                        <span class="tower-price-display"></span>¤
                     </p>
                 </button>
             </div>
@@ -167,22 +164,9 @@
             </div>
         </div>
 
-        <div id="commScreen">
-            <p id="message"></p>
-            <p id="p1"></p>
-            <p id="p2"></p>
-            <p id="p3"></p>
-            <p id="p4"></p>
-            <form id='submitForm' action='submit-score' method='post' style='display: none;'>
-                <input id='email-input' type='email' placeholder='Email' autofocus required>
-                <button type="submit" id="formSubmit">Send</button>
-            </form>
-            <button type="button" id="commButton"> start game </button>
-        </div>
-
         <div class="screen" id="start-screen">
         		<p>Welcome to &quot;Mobile Network Game&quot;. The objective of the game is to have non-negative balance of ¤ for as long as possible.</p>
-        		<p>Click on the tower icon (that wil soon appear) to place a tower. Towers initially cost 50¤, but their cost will gradually increase after every month. There is a monthly maintenance charge for each tower.</p>
+        		<p>Click on the tower icon (that will soon appear) to place a tower. Towers initially cost <span class="tower-price-display"></span>¤, but their cost will gradually increase after every month. There is a monthly maintenance charge for each tower.</p>
         		<p>Sprites on the map correspond to subscribers. They will periodically try to make a call and succeed iff they happen to be within range of an available tower.</p>
         		<p>Towers can handle up to three concurrent calls. You will receive 5¤ for a successful call and lose 2¤ for a failed one.</p>
         		<p>Click the button below to start the game.</p>
@@ -194,17 +178,18 @@
         		<p>During its lifetime, your network successfully handled <span class="total-succ-display"></span> calls, and failed to handle <span class="total-fail-display"></span>.</p>
         		<p>Overall, you managed to place <span class="towers-display"></span> tower(s).</p>
         		<p>If you'd like to be considered for career opportunities, please submit your score below!</p>
-        		<form id='submitForm' action='submit-score' method='post' style='display: none;'>
+        		<form id='submitForm' action='submit-score' method='post'>
                 <input id='email-input' type='email' placeholder='Email' autofocus required>
                 <button type="submit" id="formSubmit">Send</button>
             </form>
+            <p id="form-feedback">Your information has been sent.</p>
         </div>
 
         <div class="screen" id="monthly-screen">
         		<p>A month has passed. Here is the summary:</p>
         		<p>Calls attempted: <span class="calls-display"></span></p>
         		<p>Calls successfully handled by the network: <span class="succ-display"></span></p>
-        		<p>You have been charged <span class="maintenance-display"></span>¤ for tower maintenance. A tower now costs <span class="tower1price"></span>¤.</p>
+        		<p>You have been charged <span class="maintenance-display"></span>¤ for tower maintenance. A tower now costs <span class="tower-price-display"></span>¤.</p>
         		<p>Click the button below to continue the game.</p>
         		<button type="button" id="continue-btn">Continue game</button>
         </div>
