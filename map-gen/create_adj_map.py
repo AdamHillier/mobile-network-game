@@ -1,28 +1,29 @@
 # From a hand traced map (eg. Inkscape etc.), create the abstract adjacency map that the sprites use to navigate
-#  to run in the interpreter: `execfile("create_adj_map.py")`
 import argparse
 
 # Handle command line arguments
 parser = argparse.ArgumentParser()
 parser.add_argument('infile',
-  help="specify a 450px by 450px svg with some paths in it")
+  help="specify a 800px by 450px svg with some paths in it")
 args = parser.parse_args()
 
 # Import the svg and extract the paths
 from xml.dom import minidom
 doc = minidom.parse(args.infile)
 
-# Doesn't work yet, but refine to accept the name of the lines layer
-# That way the logical map and the background image can be edited in the same file
-#path_strings = [path.getAttribute('d') for path in doc.getElementsByTagName('path')]
+# Accept the name of the lines layer, so the logical map and the background image can be edited in the same file
 path_strings = [path.getAttribute("d") for group in doc.getElementsByTagName("g") if (group.getAttribute("inkscape:label")==u'lines') for path in group.getElementsByTagName("path")]
 
+import re
+all_straight_lines = re.compile('^(m|M) (-?(\d+\.)?\d+,-?(\d+\.)?\d+ )*(-?(\d+\.)?\d+,-?(\d+\.)?\d+)$')
+filtered_path_strings = filter(lambda path: all_straight_lines.match(path), path_strings)
+
 # Round the string representation of the coordinates to integers
-paths = [map(lambda coord: tuple([int(float(c)) for c in coord.split(',')]), path.split()[1:]) for path in path_strings]
+paths = [map(lambda coord: tuple([int(float(c)) for c in coord.split(',')]), path.split()[1:]) for path in filtered_path_strings]
 
 # The path data attribute is prefixed by a capital M for absolute paths,
 #   and a lower case m for relative paths
-is_relative_path = map(lambda path: path.split()[0]==u'm', path_strings)
+is_relative_path = map(lambda path: path.split()[0]==u'm', filtered_path_strings)
 
 def offset_displacement(p0, p1):
   return (p0[0]+p1[0], p0[1]+p1[1])
