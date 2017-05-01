@@ -14,7 +14,7 @@ body {
 	top: 0;
 	left: 0;
 	right: 0;
-	bottom: 110px;
+	bottom: 62px;
 }
 
 #map {
@@ -61,25 +61,20 @@ circle.load-ring-cover {
 	position:absolute;
 	left: 0;
 	bottom: 0;
-	height: 110px;
+	height: 62px;
 	width: 100%;
 	background-color: rgba(0, 0, 0, 0.3);
 }
 
 #balanceDisplay, #buttons, #status, #volume {
-	display:inline-block;
-	height:95%;
-	border:1px solid #000211;
-	border-top:0;
-	border-bottom:0;
-	margin:0 5px;
-	vertical-align:top;
+	display: inline-block;
+	vertical-align: middle;
 }
 
 #balanceDisplay {
-	width:10%;
-	font-size:4vh;
-	color:#efa000;
+	width: 10%;
+	font-size: 24px;
+	color: #efa000;
 	text-align:center;
 }
 
@@ -97,36 +92,36 @@ circle.load-ring-cover {
 }
 
 #buttons > button {
-	display:none; /* JavaScript handles this, but buttons aren't visible before game start */
-	background-color:#003e77;
-	background-size:70% auto;
-	background-position:center;
-	background-repeat:no-repeat;
-	padding:0;
-	border:0;
-	border-radius:100%;
-	height:8vh;
-	width:8vh;
-	margin:1vh;
-	cursor:pointer;
+	display: none; /* JavaScript handles this, but buttons aren't visible before game start */
+	background-color: #003e77;
+	background-size: 70% auto;
+	background-position: center;
+	background-repeat: no-repeat;
+	padding: 0;
+	border: 0;
+	border-radius: 100%;
+	height: 50px;
+	width: 50px;
+	margin: 5px;
+	cursor: pointer;
 }
 
 #buttons > button:hover {
-	background-color:#0167c4;
+	background-color: #0167c4;
 }
 
 .placeTower p {
-	position:relative;
-	bottom:3vh;
-	padding:0;
-	margin:0;
-	color:#efa000;
-	font-size:2vh;
-	font-weight:bold;
+	position: relative;
+	bottom: 3vh;
+	padding: 0;
+	margin: 0;
+	color: #efa000;
+	font-size: 2vh;
+	font-weight: bold;
 }
 
 #status {
-	width:40%;
+	width: 40%;
 }
 
 #explanation, #balanceNotEnough {
@@ -134,22 +129,23 @@ circle.load-ring-cover {
 }
 
 #explanation p, #balanceNotEnough p {
-	margin:0;
+	margin: 0;
 }
 
 #volume {
-	width:15%;
+	width: 25%;
+	vertical-align: middle;
 }
 
 #volume label {
-	display:inline-block;
-	width:40%;
+	display: inline-block;
+	width: 45%;
 }
 
 #volume input {
-	width:55%;
-	margin:2% 0 0 0;
-	padding:0;
+	width: 45%;
+	padding: 0;
+	vertical-align: middle;
 }
 
 body {
