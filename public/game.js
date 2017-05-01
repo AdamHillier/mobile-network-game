@@ -15,8 +15,9 @@
     };
 
     function fillElemsOfClass(className, content) {
-        for (let el of document.getElementsByClassName(className)) {
-            el.innerHTML = content;
+        var els = document.getElementsByClassName(className);
+        for (var i = 0; i < els.length; i++) {
+            els[i].innerHTML = content;
         }
     }
 
@@ -141,8 +142,9 @@
     
     function hideScreen() {
         svg.style.filter = "blur(0px)";
-        for (let screen of (document.getElementsByClassName("screen"))) {
-            screen.style.visibility = "hidden";
+        var screens = document.getElementsByClassName("screen");
+        for (var i = 0; i < screens.length; i++) {
+            screens[i].style.visibility = "hidden";
         }
         startTimer();
     }
@@ -365,8 +367,9 @@
         currentPendingAction = pendingActions.none;
         cancelPlacingTowerButton.style.display = "none";
 
-        for (let button of (document.getElementsByClassName("placeTower"))) {
-            button.style.display = "inline";
+        var buttons = document.getElementsByClassName("placeTower");
+        for (var i = 0; i < buttons.length; i++) {
+            buttons[i].style.display = "inline";
         }
 
         //hide #explanation paragraph.
@@ -674,8 +677,9 @@
 
         //bind button actions
         document.getElementById("start-btn").onclick = function () {
-            for (let button of (document.getElementsByClassName("placeTower"))) {
-                button.style.display = "inline";
+            var buttons = document.getElementsByClassName("placeTower");
+            for (var i = 0; i < buttons.length; i++) {
+                buttons[i].style.display = "inline";
             }
             //starting and stopping the "time elapsed" chronometer is done by methods showing/hiding start'monthly feedback/endgame screens
             hideScreen();
@@ -706,8 +710,9 @@
                     explanationParagraph = "Click on map to place a tower with high capacity."
             };
 
-            for (let button of (document.getElementsByClassName("placeTower"))) {
-                button.style.display = "none";
+            var buttons = document.getElementsByClassName("placeTower");
+            for (var i = 0; i < buttons.length; i++) {
+                buttons[i].style.display = "none";
             }
             cancelPlacingTowerButton.style.display = "inline";
 
