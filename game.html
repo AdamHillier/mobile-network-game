@@ -3,81 +3,6 @@
 <html>
     <head>
         <title>Mobile Network Game</title>
-        <style type="text/css">
-            body {
-                font-family: Calibri, sans-serif;
-                font-size: large;
-            }
-
-            .keySprite, h1 {
-                font-size: xx-large;
-            }
-            .keySprite {
-                line-height: 20px;
-                position: relative;
-                top: 4.5px;
-            }
-            #info {
-                float: right;
-                max-width: 33%;
-            }
-
-            h1 {
-                color: grey;
-                margin-right: 1em;
-            }
-
-            #monthDisplay, #timeDisplay {
-                font-size: large;
-                font-weight: bold;
-            }
-            #gameOver {
-                color: red;
-                display: none;
-            }
-
-            .monthly {
-                display: none;
-            }
-            #commScreen {
-                position: absolute;
-                top: 100px;
-                left: 150px;
-                height: 600px;
-                width: 600px;
-                border: solid;
-                visibility: hidden;
-                background: #ffffff;
-            }
-            #message, #p1, #p2, #p3, #p4 {
-                padding: 10px, 10px, 10px, 10px;
-                text-align: center;
-                font-size: 24px;
-                margin: 10px 10px;
-                font-weight: bold;
-            }
-            #commButton {
-                display: block;
-                margin: 50px auto;
-                font-size: 20px;
-                background-color: #ffffff;
-                border: 4px solid #173e7c;
-            }
-            #submitForm {
-                text-align: center;
-            }
-            #submitForm > input {
-                display: inline;
-                font-size: 24px;
-                padding: 10px, 10px, 10px, 10px;
-                font-weight: bold;
-            }
-            #formSubmit {
-                font-size: 20px;
-                background-color: #ffffff;
-                border: 4px solid #173e7c;
-            }
-        </style>
         <link rel="stylesheet" type="text/css" href="style.css" />
         <link rel="stylesheet" type="text/css" href="sliders.css" />
     </head>
@@ -116,7 +41,7 @@
         </div>
 
         <div id="container">
-            <svg id="map" xmlns="http://www.w3.org/2000/svg" version="1.1">
+            <svg id="map" viewbox="0 0 800 450" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" version="1.1">
                 <!-- Keep people, towers, and range indicators in different layers -->
                 <g id="people-group"></g>
                 <g id="tower-group"></g>
@@ -134,16 +59,16 @@
             <!-- TODO -->
             <div id="buttons">
             <!-- removed the original placeTower button, and replace with new buttons placing specific types of towers. -->
-            <!-- 
+            <!--
                 <button type="button" id="placeTower">
                     <p>
                         <span id="towerPrice">50</span>¤
                     </p>
                 </button>
-            -->     
+            -->
 
                 <p>
-                    <span id="towerPrice">50</span>¤ 
+                    <span id="towerPrice">50</span>¤
                     <!-- apparently you can't just delete this span together with the old button, because its innerHTML is being used to getTowerPrice() and setTowerPrice() -->
                 </p>
 
@@ -175,22 +100,17 @@
 
         <div id="commScreen">
             <p id="message"></p>
-            <p id="p1"></p>
-            <p id="p2"></p>
-            <p id="p3"></p>
-            <p id="p4"></p>
+            <br>
             <form id='submitForm' action='submit-score' method='post' style='display: none;'>
                 <input id='email-input' type='email' placeholder='Email' autofocus required>
                 <button type="submit" id="formSubmit">Send</button>
             </form>
-            <button type="button" id="commButton"> start game </button>
+            <button type="button" id="commButton">Start game</button>
         </div>
 
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
         <script type="text/javascript" src="buffer-loader.js"></script>
         <script type="text/javascript" src="audio.js"></script>
-        <script type="text/javascript" src="game.js"></script> <!-- prefix public/ to view locally -->
+        <script type="text/javascript" src="game.js"></script>
         <script type="text/javascript" src="adj_graph.js"></script>
-
     </body>
 </html>
