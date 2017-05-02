@@ -1,26 +1,30 @@
 html, body {
-	height:100%;
-	margin:0;
-	padding:0;
+	height: 100%;
+	margin: 0;
+	padding: 0;
 }
 
 body {
-	background-color:#011829;
-	color:#003e77;
+	background-color: #011829;
+	color: #003e77;
 }
 
 #container {
-	width:100%;
-	height:100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 60px;
 }
 
 #map {
-	display:block;
-	width:60%;
-	height:90%;
-	background-image:url('map.svg');
-	background-repeat:no-repeat;
-	border:1px solid #000000;
+	display: block;
+	width: 100%;
+	height: 100%;
+	background-image: url('map.svg');
+	background-repeat: no-repeat;
+	background-size: contain;
+	background-position: center;
 }
 
 .range-indicator {
@@ -55,27 +59,22 @@ circle.load-ring-cover {
 
 #action-bar {
 	position:absolute;
-	left:0;
-	bottom:0;
-	height:10%;
-	width:100%;
-	background-color:rgba(0, 0, 0, 0.3);
+	left: 0;
+	bottom: 0;
+	height: 60px;
+	width: 100%;
+	background-color: #01111d;
 }
 
 #balanceDisplay, #buttons, #status, #volume {
-	display:inline-block;
-	height:95%;
-	border:1px solid #000211;
-	border-top:0;
-	border-bottom:0;
-	margin:0 5px;
-	vertical-align:top;
+	display: inline-block;
+	vertical-align: middle;
 }
 
 #balanceDisplay {
-	width:10%;
-	font-size:4vh;
-	color:#efa000;
+	width: 10%;
+	font-size: 24px;
+	color: #efa000;
 	text-align:center;
 }
 
@@ -93,36 +92,36 @@ circle.load-ring-cover {
 }
 
 #buttons > button {
-	display:none; /* JavaScript handles this, but buttons aren't visible before game start */
-	background-color:#003e77;
-	background-size:70% auto;
-	background-position:center;
-	background-repeat:no-repeat;
-	padding:0;
-	border:0;
-	border-radius:100%;
-	height:8vh;
-	width:8vh;
-	margin:1vh;
-	cursor:pointer;
+	display: none; /* JavaScript handles this, but buttons aren't visible before game start */
+	background-color: #003e77;
+	background-size: 70% auto;
+	background-position: center;
+	background-repeat: no-repeat;
+	padding: 0;
+	border: 0;
+	border-radius: 100%;
+	height: 50px;
+	width: 50px;
+	margin: 5px;
+	cursor: pointer;
 }
 
 #buttons > button:hover {
-	background-color:#0167c4;
+	background-color: #0167c4;
 }
 
 .placeTower p {
-	position:relative;
-	bottom:3vh;
-	padding:0;
-	margin:0;
-	color:#efa000;
-	font-size:2vh;
-	font-weight:bold;
+	position: relative;
+	bottom: 18px;
+	padding: 0;
+	margin: 0;
+	color: #efa000;
+	font-size: 15px;
+	font-weight: bold;
 }
 
 #status {
-	width:40%;
+	width: 40%;
 }
 
 #explanation, #balanceNotEnough {
@@ -130,20 +129,99 @@ circle.load-ring-cover {
 }
 
 #explanation p, #balanceNotEnough p {
-	margin:0;
+	margin: 0;
 }
 
 #volume {
-	width:15%;
+	width: 25%;
+	vertical-align: middle;
 }
 
 #volume label {
-	display:inline-block;
-	width:40%;
+	display: inline-block;
+	width: 35%;
 }
 
 #volume input {
-	width:55%;
-	margin:2% 0 0 0;
-	padding:0;
+	width: 45%;
+	padding: 0;
+	vertical-align: middle;
+}
+
+body {
+    font-family: Calibri, sans-serif;
+    font-size: large;
+    min-height: 300px;
+    min-width: 400px;
+}
+
+.keySprite, h1 {
+    font-size: xx-large;
+}
+.keySprite {
+    line-height: 20px;
+    position: relative;
+    top: 4.5px;
+}
+#info {
+    display: none;
+    float: right;
+    max-width: 33%;
+}
+
+h1 {
+    color: grey;
+    margin-right: 1em;
+}
+
+#monthDisplay, #timeDisplay {
+    font-size: large;
+    font-weight: bold;
+}
+#gameOver {
+    color: red;
+    display: none;
+}
+
+.monthly {
+    display: none;
+}
+.screen {
+    position: absolute;
+    top: 50%;
+    max-height: 80%;
+    left: 50%;
+    max-width: 80%;
+    transform: translate(-50%, -50%);
+    border: solid;
+    visibility: hidden;
+    background: #ffffff;
+    overflow-y: scroll;
+}
+.screen > p {
+    text-align: center;
+    font-size: 18px;
+    margin: 10px 10px;
+    font-weight: bold;
+}
+.screen > button {
+    display: block;
+    margin: 10px auto;
+    font-size: 18px;
+    background-color: #ffffff;
+    border: 4px solid #173e7c;
+}
+#submitForm {
+    text-align: center;
+}
+#submitForm > input {
+    display: inline;
+    font-size: 18px;
+    padding: 10px, 10px, 10px, 10px;
+    font-weight: bold;
+}
+#formSubmit {
+    font-size: 20px;
+    background-color: #ffffff;
+    border: 4px solid #173e7c;
 }

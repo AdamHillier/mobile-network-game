@@ -51,7 +51,8 @@ wrapped = {}
 wrapped['osm_adjacency'] = adj_list
 wrapped['osm_nodes'] = rescaled_offset_nodes
 
-with open('../public/adj_graph.json', 'w') as fh:
+with open('../public/adj_graph.js', 'w') as fh:
+  fh.write("ADJ_GRAPH=")
   fh.write(json.dumps(wrapped, separators=(',', ':')))
 
 

@@ -33,7 +33,7 @@ var zaddIfGreaterSha = sha1(zaddIfGreaterScript);
 client.script('load', zaddIfGreaterScript);
 
 client.zaddIfGreater = function (args, callback) {
-    this.evalsha(zaddIfGreaterSha, [2, ...args], callback);
+    this.evalsha(zaddIfGreaterSha, [2, args[0], args[1], args[2]], callback);
 }
 
 /*********************************

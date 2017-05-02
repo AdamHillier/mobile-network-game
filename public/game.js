@@ -3,19 +3,21 @@
 (function () {
     // Game parameters
     var params = {
-        numberOfSprites: 50,      // Initial sprite count
-        nodeEpsilon: 1,           // Radius in which a sprite has reached a node
-        spriteSpeed: 0.005,       // Speed of sprites
+        numberOfSprites: 50,                // Initial sprite count
+        nodeEpsilon: 1,                     // Radius in which a sprite has reached a node
+        spriteSpeed: 0.005,                 // Speed of sprites
         spriteRadius: 3,
         callProbabilityPerUpdate: 1/3000,
-        callDuration: 5000,       // in milliseconds
+        callDuration: 5000,                 // In milliseconds
         successCallCredit: 5,
-        failureCallCredit: -2
+        failureCallCredit: -2,
+        monthLength: 10000                  // In milliseconds
     };
 
     function fillElemsOfClass(className, content) {
-        for (let el of document.getElementsByClassName(className)) {
-            el.innerHTML = content;
+        var els = document.getElementsByClassName(className);
+        for (var i = 0; i < els.length; i++) {
+            els[i].innerHTML = content;
         }
     }
 
@@ -57,9 +59,8 @@
     var rangeGroup;
     var towerLoadGroup;
 
-    var DEF_WIDTH = 450; // Default width (in px) of the map background image (not the same as the SVG element's width)
+    var DEF_WIDTH = 800; // Default width (in px) of the map background image (not the same as the SVG element's width)
     var DEF_HEIGHT = 450;
-    var mapScaling = 1.0; // Map magnification--might we want to allow this to vary and enable zooming?
 
     var adjMap;
 
@@ -71,12 +72,12 @@
     var TOWER_WIDTH = 12;
     var TOWER_HEIGHT = 12;
 
-    /* the following two parameters are a list corresponding to different types of tower
+    /*  the following two parameters are a list corresponding to different types of tower
         e.g. TOWER_RANGE[1] corresponds to range of type 1 tower.
         the 0-indexed element is null as the type of towers start from 1.
         modify here if more types are introduced.
     */
-    var TOWER_RANGE = [null, 100, 60];  
+    var TOWER_RANGE = [null, 100, 60];
     var MAX_LOAD = [null, 3, 5]; // Maximum number of calls each tower can handle simultaneously
 
     var TOWER_LOAD_VISUAL_RADIUS = 12;
@@ -100,29 +101,28 @@
 
     var placeTowerButton;
     var cancelPlacingTowerButton;
-    var explanationParagraph;
 
-        function initialiseSprites (n) {
-            var numberOfNodes = adjMap["osm_nodes"].length;
-            for (var i = 0; i < n; i++) {
-                    var startNode = randomIntBound(numberOfNodes);
-                    var neighbours = adjMap["osm_adjacency"][startNode];
-                    var randIndx = randomIntBound(neighbours.length);
+    function initialiseSprites (n) {
+        var numberOfNodes = adjMap["osm_nodes"].length;
+        for (var i = 0; i < n; i++) {
+            var startNode = randomIntBound(numberOfNodes);
+            var neighbours = adjMap["osm_adjacency"][startNode];
+            var randIndx = randomIntBound(neighbours.length);
 
-                    var sprite = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-                    sprite.setAttribute("r", ""+params.spriteRadius);
-                    sprite.setAttribute("cx", getNodePosition(startNode).x);
-                    sprite.setAttribute("cy", getNodePosition(startNode).y);
-                    sprite.setAttribute("class", "person");
-                    sprite.setAttribute("fill", spriteCallStatus.none);
-                    sprite.setAttribute("data-sprite-id", i); // Might be redundant, but should be useful for debugging
-                    peopleGroup.appendChild(sprite);
+            var sprite = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            sprite.setAttribute("r", ""+params.spriteRadius);
+            sprite.setAttribute("cx", getNodePosition(startNode).x);
+            sprite.setAttribute("cy", getNodePosition(startNode).y);
+            sprite.setAttribute("class", "person");
+            sprite.setAttribute("fill", spriteCallStatus.none);
+            sprite.setAttribute("data-sprite-id", i); // Might be redundant, but should be useful for debugging
+            peopleGroup.appendChild(sprite);
 
-                    var id = { month: getMonth(), number: i };
+            var id = { month: getMonth(), number: i };
 
-                    sprites.push(new Sprite(id, startNode, neighbours[randIndx], getNodePosition(startNode), sprite));
-            }
+            sprites.push(new Sprite(id, startNode, neighbours[randIndx], getNodePosition(startNode), sprite));
         }
+    }
 
     var gameTime; // Total amount of time the game has been playing (unpaused) for
     setGameTime(0);
@@ -131,17 +131,20 @@
         fillElemsOfClass("time-display", v);
     }
     var timer; //the "time elapsed" chronometer
-//    var GAME_PAUSED = false;
+    //    var GAME_PAUSED = false;
     var GAME_UNPAUSED = false;
     var lastPaused; //the latest time when the game was paused by the game loop
+
     function showStart() {
         svg.style.filter = "blur(5px)";
         document.getElementById("start-screen").style.visibility = "visible";
     }
+    
     function hideScreen() {
         svg.style.filter = "blur(0px)";
-        for (let screen of (document.getElementsByClassName("screen"))) {
-            screen.style.visibility = "hidden";
+        var screens = document.getElementsByClassName("screen");
+        for (var i = 0; i < screens.length; i++) {
+            screens[i].style.visibility = "hidden";
         }
         startTimer();
     }
@@ -159,7 +162,7 @@
             httpRequest.onload = handleResponse;
             httpRequest.open('POST', '/submit-score', true);
             httpRequest.setRequestHeader("Content-Type", "application/json");
-            httpRequest.send(JSON.stringify({ email: document.getElementById('email-input').value, score: score.toString() }));
+            httpRequest.send(JSON.stringify({ email: document.getElementById('email-input').value, score: gameTime }));
             function handleResponse() {
                 if (httpRequest.readyState === XMLHttpRequest.DONE) {
                     if (httpRequest.status === 200) {
@@ -171,7 +174,6 @@
                 }
             }
         }, false);
-
         document.getElementById("end-screen").style.visibility = "visible";
     }
 
@@ -201,9 +203,6 @@
         svg = document.getElementById('map');
         var svgWidth = svg.width.baseVal.value; // Width (in px) of SVG element (we would like to be able to set the width here, but there seem to be some difficulties doing that)
         var svgHeight = svg.height.baseVal.value;
-        mapScaling = Math.min(svgWidth / DEF_WIDTH, svgHeight / DEF_HEIGHT); // Magnify the map as much as possible without cropping it
-        svg.setAttribute("viewBox", "0 0 " + (svgWidth / mapScaling) + " " + (svgHeight / mapScaling)); // Zoom in on the top left corner
-        svg.style.backgroundSize = (mapScaling * DEF_WIDTH) + "px " + (mapScaling * DEF_HEIGHT) + "px"; // background-size:auto auto (the default) is DEF_WIDTH DEF_HEIGHT
 
         peopleGroup = document.getElementById('people-group');
         towerGroup = document.getElementById('tower-group');
@@ -214,45 +213,36 @@
         towers = new Array();
 
         // Previously with JQuery, now inline in adj_graph.js
-                adjMap = ADJ_GRAPH;
-                initialiseSprites(params.numberOfSprites);
+        adjMap = ADJ_GRAPH;
+        initialiseSprites(params.numberOfSprites);
 
-        //get coordinates of the event
-        //used both in svg.onmousemove and svg.onclick
+        // Get coordinates of the event
+        // Used both in svg.onmousemove and svg.onclick
         function getcxcy(event) {
+            var container = document.getElementById('container').getBoundingClientRect();
+            var containerAspect = container.width/container.height;
+            var mapAspect = DEF_WIDTH/DEF_HEIGHT;
+            var leftOffset = containerAspect > mapAspect ? (container.width - container.height * mapAspect)/2 : 0;
+            var topOffset = mapAspect > containerAspect ? (container.height - container.width / mapAspect)/2 : 0;
             var boundary = svg.getBoundingClientRect();
             var viewBox = svg.viewBox.baseVal; // An object with the 4 values specifying the viewBox attribute (named x, y, width, height)
-            // Calculate the centre of the tower
-            var cx = viewBox.x + ((event.clientX - boundary.left) / mapScaling); // Convert screen units to user units
-            var cy = viewBox.y + ((event.clientY - boundary.top) / mapScaling);
-
+            var cx = viewBox.x + Math.max(0, Math.min(DEF_WIDTH, viewBox.width*(event.clientX - leftOffset - boundary.left)/(boundary.width - 2 * leftOffset)));
+            var cy = viewBox.y + Math.max(0, Math.min(DEF_HEIGHT, viewBox.height*(event.clientY - topOffset - boundary.top)/(boundary.height - 2 * topOffset)));
             return [cx, cy];
         }
 
         //helper function: detects if currentPendingAction is a placeTower action
         //modify here if more types are introduced
         function currentPendingActionIsPlaceTower() {
-            if (currentPendingAction === pendingActions.placeTower1 || 
-                currentPendingAction === pendingActions.placeTower2) {
-                return true;
-            }
-            else {
-                return false;
-            }
+            return currentPendingAction === pendingActions.placeTower1 ||
+                   currentPendingAction === pendingActions.placeTower2;
         }
 
         //helper function: if currentPendingAction is a placeTower action,
         //return the type of tower to place.
         //modify here if more types are introduced
         function getTowerTypeToPlace() {
-            switch (currentPendingAction) {
-                case pendingActions.placeTower1:
-                    return 1;
-                case pendingActions.placeTower2:
-                    return 2;
-                default:
-                    return -1; //illegal
-            }
+            return currentPendingActionIsPlaceTower() ? currentPendingAction : -1;
         }
 
         //show indication of range before atually putting down the tower
@@ -302,7 +292,7 @@
 
                 //placingTower action is successful, end this action.
                 //Note: this must be done AFTER we get the type of tower to place, because that inspects the currentPendingAction, and cancelPlacingTower() sets it to none.
-                cancelPlacingTower(); 
+                cancelPlacingTower();
 
                 if (getBalance() >= getTowerPrice()) {
                     //get cursor location
@@ -353,11 +343,8 @@
                     loadRingCover.setAttribute("transform", "rotate(270 " + cx + " " + cy + ")");
                     towerLoadGroup.appendChild(loadRingCover);
 
-
-                                    incrementBalance(-getTowerPrice());
-
-                }
-                else {
+                    incrementBalance(-getTowerPrice());
+                } else {
                     playSound(BAD_ACTION);
                     //show message that there's not enough balance
                     var balanceNotEnoughDiv = document.getElementById("balanceNotEnough");
@@ -367,7 +354,6 @@
                     setTimeout(function(){
                         balanceNotEnoughDiv.style.display = "none";
                     }, 2000)
-
                 }
 
             };
@@ -381,8 +367,9 @@
         currentPendingAction = pendingActions.none;
         cancelPlacingTowerButton.style.display = "none";
 
-        for (let button of (document.getElementsByClassName("placeTower"))) {
-            button.style.display = "inline";
+        var buttons = document.getElementsByClassName("placeTower");
+        for (var i = 0; i < buttons.length; i++) {
+            buttons[i].style.display = "inline";
         }
 
         //hide #explanation paragraph.
@@ -408,7 +395,7 @@
         var elapsed;
 
         if (!GAME_UNPAUSED) {
-        elapsed = timestamp - startTime;
+            elapsed = timestamp - startTime;
         } else {
             elapsed = 0;
             GAME_UNPAUSED = false;
@@ -434,11 +421,11 @@
         }
     };
 
-        function newMonth () {
-            incrementMonth(1);
-            initialiseSprites(getMonth());
-            incrementTowerPrice(5);
-        }
+    function newMonth () {
+        incrementMonth(1);
+        initialiseSprites(getMonth());
+        incrementTowerPrice(5);
+    }
 
     //Sprites
 
@@ -447,15 +434,16 @@
         this.previousNode = prevNode;
         this.targetNode = targetNode;
         this.pos = pos;
-                this.callStatus = spriteCallStatus.none;
-                this.elem = elem; // The SVG element representing the sprite
-                this.lastTower = null;
+        this.callStatus = spriteCallStatus.none;
+        this.elem = elem; // The SVG element representing the sprite
+        this.lastTower = null;
     }
+    var black_hole = {x:0, y:0};
     Sprite.prototype.update = function (tFrame) {
-              // if sprite is idle, maybe place a call
-                if (this.callStatus === spriteCallStatus.none) { placeCallMaybe(this); }
-                // in call => stationary
-                if (this.callStatus !== spriteCallStatus.none) { tFrame = 0; }
+        // if sprite is idle, maybe place a call
+        if (this.callStatus === spriteCallStatus.none) { placeCallMaybe(this); }
+        // in call => stationary
+        if (this.callStatus !== spriteCallStatus.none) { tFrame = 0; }
         // move increment
         var ds = params.spriteSpeed * tFrame; // how far to move
         var source = getNodePosition(this.previousNode);
@@ -463,10 +451,6 @@
         var angle = Math.atan2(dest.y-source.y, dest.x-source.x);
         var dy = Math.sin(angle) * ds;
         var dx = Math.cos(angle) * ds;
-
-        if (this.pos.distanceTo(dest) < ds) {
-          console.log("overstep");
-        }
 
         this.pos.x += dx;
         this.pos.y += dy;
@@ -477,6 +461,30 @@
             this.previousNode = this.targetNode;
 
             // Set this this to face a random neighbour
+            // actually, no. Set this to face the neighbour with angle closest to the black hole with some reasonably high probability
+
+/*
+            var target_angle = Math.atan2(black_hole.y-this.pos.y, black_hole.x-this.pos.x);
+            var neighbours = adjMap["osm_adjacency"][this.previousNode];
+            var x = this.pos.x
+            var y = this.pos.y
+            var angle_offsets = neighbours.map(function(n) {
+                                                 var neighbour = getNodePosition(n);
+                                                 var angle = Math.atan2(neighbour.y-y, neighbour.x-x);
+                                                 return Math.abs(angle-target_angle);
+                                               });
+            var lowest = 0;
+            for (var i = 1; i < angle_offsets.length; i++) {
+              if (angle_offsets[i] < angle_offsets[lowest]) lowest = i;
+            }
+
+            //   ...and avoid going backwards
+            if (this.previousNode == neighbours[lowest]) {
+                randIndx = (randIndx + 1) % neighbours.length;
+            }
+            this.targetNode = neighbours[lowest];
+*/
+
             var neighbours = adjMap["osm_adjacency"][this.previousNode];
             var randIndx = randomIntBound(neighbours.length);
             //   ...and avoid going backwards
@@ -491,62 +499,62 @@
         this.elem.setAttribute("cy", this.pos.y);
         this.elem.setAttribute("fill", this.callStatus);
 
-                function placeCallMaybe(sprite) {
-                    if (randomIntBound(1/params.callProbabilityPerUpdate) < 1) {
-                        var ringRing = setInterval(function () {
-                            if (sprite.callStatus === spriteCallStatus.dialing) {
-                                sprite.callStatus = spriteCallStatus.dialingPulse;
-                            } else {
-                                sprite.callStatus = spriteCallStatus.dialing;
-                            }
-                        }, 50);
-                        setTimeout(function () {
-                            clearInterval(ringRing);
-                            if (handleCall(sprite)) {
-                                sprite.callStatus = spriteCallStatus.success;
-                            } else {
-                                sprite.callStatus = spriteCallStatus.failure;
-                            }
-                        }, params.callDuration/3);
-                        setTimeout(function () {
-                            // If callStatus is success then here we will want to decrement the load of the appropriate tower
-                            if (sprite.lastTower !== null) {
-                                sprite.lastTower.decrementLoad();
-
-                                //update the tower load visual indication
-                                sprite.lastTower.updateLoadIndication();
-
-                                sprite.lastTower = null;
-                            }
-                            sprite.callStatus = spriteCallStatus.none;
-                        }, params.callDuration);
+        function placeCallMaybe(sprite) {
+            if (randomIntBound(1/params.callProbabilityPerUpdate) < 1) {
+                var ringRing = setInterval(function () {
+                    if (sprite.callStatus === spriteCallStatus.dialing) {
+                        sprite.callStatus = spriteCallStatus.dialingPulse;
+                    } else {
+                        sprite.callStatus = spriteCallStatus.dialing;
                     }
+                }, 50);
+                setTimeout(function () {
+                    clearInterval(ringRing);
+                    if (handleCall(sprite)) {
+                        sprite.callStatus = spriteCallStatus.success;
+                    } else {
+                        sprite.callStatus = spriteCallStatus.failure;
+                    }
+                }, params.callDuration/3);
+                setTimeout(function () {
+                    // If callStatus is success then here we will want to decrement the load of the appropriate tower
+                    if (sprite.lastTower !== null) {
+                        sprite.lastTower.decrementLoad();
 
-                    function handleCall(sprite) {
-                        for(let tower of towers) {
-                            if ((sprite.pos.distanceTo(tower.pos) < tower.range) && (tower.load < tower.capacity)) {
-                                // // If the sprite is in range of this tower
-                                // Increment tower.load here (once we implement a way of decrementing when the call finishes--presumably the sprite will have to make a note of which tower it's using)
-                                tower.incrementLoad();
+                        //update the tower load visual indication
+                        sprite.lastTower.updateLoadIndication();
 
-                                //update the tower load visual indication
-                                tower.updateLoadIndication();
+                        sprite.lastTower = null;
+                    }
+                    sprite.callStatus = spriteCallStatus.none;
+                }, params.callDuration);
+            }
 
-                                sprite.lastTower = tower;
-                                incrementBalance(params.successCallCredit);
-                playSound(CALL_SUCCESS);
-                                setTotalSuccCalls(totalSuccCalls + 1);
-                                setSuccCalls(succCalls + 1);
-                                return true;
-                            }
-                        }
-                        incrementBalance(params.failureCallCredit);
-            playSound(CALL_FAIL);
-                        setTotalFailedCalls(totalFailedCalls + 1);
-                        setFailedCalls(failedCalls + 1);
-                        return false;
+            function handleCall(sprite) {
+                for(let tower of towers) {
+                    if ((sprite.pos.distanceTo(tower.pos) < tower.range) && (tower.load < tower.capacity)) {
+                        // // If the sprite is in range of this tower
+                        // Increment tower.load here (once we implement a way of decrementing when the call finishes--presumably the sprite will have to make a note of which tower it's using)
+                        tower.incrementLoad();
+
+                        //update the tower load visual indication
+                        tower.updateLoadIndication();
+
+                        sprite.lastTower = tower;
+                        incrementBalance(params.successCallCredit);
+                        playSound(CALL_SUCCESS);
+                        setTotalSuccCalls(totalSuccCalls + 1);
+                        setSuccCalls(succCalls + 1);
+                        return true;
                     }
                 }
+                incrementBalance(params.failureCallCredit);
+                playSound(CALL_FAIL);
+                setTotalFailedCalls(totalFailedCalls + 1);
+                setFailedCalls(failedCalls + 1);
+                return false;
+            }
+        }
     };
 
     //Towers
@@ -588,62 +596,62 @@
         return Math.sqrt(dx*dx + dy*dy);
     };
 
-        // Budgetry
-        var balance;
-        setBalance(200);
-        function getBalance() {
-            return balance;
-        }
-        function setBalance(newBalance) {
-            balance = newBalance;
-            fillElemsOfClass("balance-display", newBalance);
-        }
-        function incrementBalance(by) {
-            setBalance(getBalance()+by);
-        }
-        var towerPrice;
-        setTowerPrice(50);
-        function getTowerPrice() {
-            return towerPrice;
-        }
-        function setTowerPrice(newPrice) {
-            towerPrice = newPrice;
-            fillElemsOfClass("tower-price-display", newPrice);
-        }
-        function incrementTowerPrice(by) {
-            setTowerPrice(getTowerPrice()+by);
-        }
-        function maintainTowers() {
-            var cost = towers.length * 5;
-            setBalance(getBalance() - cost);
-            fillElemsOfClass("maintenance-display", cost);
-            return cost;
-        }
+    // Budgetry
+    var balance;
+    setBalance(200);
+    function getBalance() {
+        return balance;
+    }
+    function setBalance(newBalance) {
+        balance = newBalance;
+        fillElemsOfClass("balance-display", newBalance);
+    }
+    function incrementBalance(by) {
+        setBalance(getBalance()+by);
+    }
+    var towerPrice;
+    setTowerPrice(50);
+    function getTowerPrice() {
+        return towerPrice;
+    }
+    function setTowerPrice(newPrice) {
+        towerPrice = newPrice;
+        fillElemsOfClass("tower-price-display", newPrice);
+    }
+    function incrementTowerPrice(by) {
+        setTowerPrice(getTowerPrice()+by);
+    }
+    function maintainTowers() {
+        var cost = towers.length * 5;
+        setBalance(getBalance() - cost);
+        fillElemsOfClass("maintenance-display", cost);
+        return cost;
+    }
 
-        // Timekeeping
-        function startTimer() {
-            timer = setInterval(function(){
-                setGameTime(gameTime + 1);
-            }, 1000);
-        }
-        function stopTimer() {
-            clearInterval(timer);
-        }
-        function hasMonthPassed(timestamp) {
-            return (timestamp - lastMonthStart > 10000);
-        }
-        var currentMonth;
-        setMonth(0);
-        function getMonth() {
-            return currentMonth;
-        }
-        function setMonth(newMonth) {
-            currentMonth = newMonth;
-            fillElemsOfClass("month-display", newMonth);
-        }
-        function incrementMonth(by) {
-            setMonth(getMonth()+by);
-        }
+    // Timekeeping
+    function startTimer() {
+        timer = setInterval(function(){
+            setGameTime(gameTime + 1);
+        }, 1000);
+    }
+    function stopTimer() {
+        clearInterval(timer);
+    }
+    function hasMonthPassed(timestamp) {
+        return (timestamp - lastMonthStart > params.monthLength);
+    }
+    var currentMonth;
+    setMonth(0);
+    function getMonth() {
+        return currentMonth;
+    }
+    function setMonth(newMonth) {
+        currentMonth = newMonth;
+        fillElemsOfClass("month-display", newMonth);
+    }
+    function incrementMonth(by) {
+        setMonth(getMonth()+by);
+    }
 
     // Helper methods
     function getNodePosition(n) {
@@ -654,29 +662,29 @@
     }
 
     //make sure all DOMs are loaded before operating on them
-    document.addEventListener("DOMContentLoaded", function(){
-                // window visibility
-                var oldParams = JSON.parse(JSON.stringify(params)); // object clone
-                window.onfocus = function() {
-                    console.log("focus");
-                    params = JSON.parse(JSON.stringify(oldParams));
-                };
-                window.onblur = function() {
-                    console.log("blur");
-                    params.spriteSpeed = 0;
-                    params.callProbabilityPerUpdate = 0;
-                };
+    document.addEventListener("DOMContentLoaded", function () {
+        // window visibility
+        var oldParams = JSON.parse(JSON.stringify(params)); // object clone
+        window.onfocus = function() {
+            console.log("focus");
+            params = JSON.parse(JSON.stringify(oldParams));
+        };
+        window.onblur = function() {
+            console.log("blur");
+            params.spriteSpeed = 0;
+            params.callProbabilityPerUpdate = 0;
+        };
 
         //bind button actions
-        document.getElementById("start-btn").onclick = function() {
-            for (let button of (document.getElementsByClassName("placeTower"))) {
-                button.style.display = "inline";
+        document.getElementById("start-btn").onclick = function () {
+            var buttons = document.getElementsByClassName("placeTower");
+            for (var i = 0; i < buttons.length; i++) {
+                buttons[i].style.display = "inline";
             }
             //starting and stopping the "time elapsed" chronometer is done by methods showing/hiding start'monthly feedback/endgame screens
             hideScreen();
             window.requestAnimationFrame(gameLoop);
         };
-
 
         cancelPlacingTowerButton = document.getElementById("cancelPlacingTower");
         cancelPlacingTowerButton.onclick = cancelPlacingTower;
@@ -689,11 +697,12 @@
         };
 
         function placeTower(type) { //place a specific type of tower
+            var explanationParagraph = '';
             switch (type) {
                 case 1: //tower of type 1
                     currentPendingAction = pendingActions.placeTower1;
                     placeTowerButton = document.getElementById("placeTower1");
-                    explanationParagraph = "Click on map to place a tower with long radius."
+                    explanationParagraph = "Click on map to place a tower with large radius."
                     break;
                 case 2:
                     currentPendingAction = pendingActions.placeTower2;
@@ -701,25 +710,16 @@
                     explanationParagraph = "Click on map to place a tower with high capacity."
             };
 
-            for (let button of (document.getElementsByClassName("placeTower"))) {
-                button.style.display = "none";
+            var buttons = document.getElementsByClassName("placeTower");
+            for (var i = 0; i < buttons.length; i++) {
+                buttons[i].style.display = "none";
             }
             cancelPlacingTowerButton.style.display = "inline";
-            
+
             var explanation = document.getElementById("explanation");
             explanation.children[0].innerHTML = explanationParagraph;
             explanation.style.display = "inline";
         }
-
-        // Blinking effect on "Sprite dialing..." key
-        setInterval(function() {
-            var style = document.getElementById("dialing").style;
-            if (style.color === "rgb(0, 255, 255)") {
-                style.color = spriteCallStatus.dialingPulse;
-            } else {
-                style.color = spriteCallStatus.dialing;
-            }
-        }, 500);
 
         //initialise game
         initialise();
