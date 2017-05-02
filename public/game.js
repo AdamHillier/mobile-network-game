@@ -92,9 +92,9 @@
     var currentPendingAction = pendingActions.none;
 
     var spriteCallStatus = {
-        none: "#0167c4",
-        dialing: "#ff7795",
-        dialingPulse: "#783b77",
+        none: "#aaa",
+		dialing: "#ffffff",
+        dialingPulse: "#491249",
         success: "#0f0",
         failure: "#f00"
     };
@@ -139,7 +139,7 @@
         svg.style.filter = "blur(5px)";
         document.getElementById("start-screen").style.visibility = "visible";
     }
-    
+
     function hideScreen() {
         svg.style.filter = "blur(0px)";
         var screens = document.getElementsByClassName("screen");
