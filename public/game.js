@@ -3,23 +3,54 @@
 (function () {
     // Game parameters
     var params = {
-        numberOfSprites: 50,      // Initial sprite count
-        nodeEpsilon: 1,           // Radius in which a sprite has reached a node
-        spriteSpeed: 0.005,       // Speed of sprites
+        numberOfSprites: 50,                // Initial sprite count
+        nodeEpsilon: 1,                     // Radius in which a sprite has reached a node
+        spriteSpeed: 0.005,                 // Speed of sprites
         spriteRadius: 3,
         callProbabilityPerUpdate: 1/3000,
-        callDuration: 5000,       // in milliseconds
+        callDuration: 5000,                 // In milliseconds
         successCallCredit: 5,
-        failureCallCredit: -2
+        failureCallCredit: -2,
+        monthLength: 10000                  // In milliseconds
     };
 
+    function fillElemsOfClass(className, content) {
+        var els = document.getElementsByClassName(className);
+        for (var i = 0; i < els.length; i++) {
+            els[i].innerHTML = content;
+        }
+    }
+
     // Monthly stats
-    var succCalls = 0;
-    var failedCalls = 0;
+    var succCalls;
+    setSuccCalls(0);
+    function setSuccCalls(v) {
+        succCalls = v;
+        fillElemsOfClass("succ-display", v);
+        fillElemsOfClass("calls-display", v + failedCalls);
+    }
+
+    var failedCalls;
+    setFailedCalls(0);
+    function setFailedCalls(v) {
+        failedCalls = v;
+        fillElemsOfClass("fail-display", v);
+        fillElemsOfClass("calls-display", succCalls + v);
+    }
 
     // Game stats
-    var totalSuccCalls = 0
-    var totalFailedCalls = 0;
+    var totalSuccCalls;
+    setTotalSuccCalls(0);
+    function setTotalSuccCalls(v) {
+        totalSuccCalls = v;
+        fillElemsOfClass("total-succ-display", v);
+    }
+    var totalFailedCalls;
+    setTotalFailedCalls(0);
+    function setTotalFailedCalls(v) {
+        totalFailedCalls = v;
+        fillElemsOfClass("total-fail-display", v);
+    }
 
     // 'Global' variables
     var svg;
@@ -28,9 +59,8 @@
     var rangeGroup;
     var towerLoadGroup;
 
-    var DEF_WIDTH = 450; // Default width (in px) of the map background image (not the same as the SVG element's width)
+    var DEF_WIDTH = 800; // Default width (in px) of the map background image (not the same as the SVG element's width)
     var DEF_HEIGHT = 450;
-    var mapScaling = 1.0; // Map magnification--might we want to allow this to vary and enable zooming?
 
     var adjMap;
 
@@ -41,15 +71,23 @@
     var towers;
     var TOWER_WIDTH = 12;
     var TOWER_HEIGHT = 12;
-    var TOWER_RANGE = 80; //originally 50, changed to 250 to test and illustrate tower load indication
-    var MAX_LOAD = 3; // Maximum number of calls each tower can handle simultaneously
+
+    /*  the following two parameters are a list corresponding to different types of tower
+        e.g. TOWER_RANGE[1] corresponds to range of type 1 tower.
+        the 0-indexed element is null as the type of towers start from 1.
+        modify here if more types are introduced.
+    */
+    var TOWER_RANGE = [null, 100, 60];
+    var MAX_LOAD = [null, 3, 5]; // Maximum number of calls each tower can handle simultaneously
 
     var TOWER_LOAD_VISUAL_RADIUS = 12;
     var TOWER_LOAD_VISUAL_CIRCUMFERENCE = 2 * Math.PI * TOWER_LOAD_VISUAL_RADIUS;
 
     var pendingActions = {
         none: 0,
-        placeTower: 1
+        placeTower1: 1, //place tower of type 1
+        placeTower2: 2  //place tower of type 2
+        //more actions here if more types are introduced
     };
     var currentPendingAction = pendingActions.none;
 
@@ -64,86 +102,79 @@
     var placeTowerButton;
     var cancelPlacingTowerButton;
 
-        function initialiseSprites (n) {
-            var numberOfNodes = adjMap["osm_nodes"].length;
-            for (var i = 0; i < n; i++) {
-                    var startNode = randomIntBound(numberOfNodes);
-                    var neighbours = adjMap["osm_adjacency"][startNode];
-                    var randIndx = randomIntBound(neighbours.length);
+    function initialiseSprites (n) {
+        var numberOfNodes = adjMap["osm_nodes"].length;
+        for (var i = 0; i < n; i++) {
+            var startNode = randomIntBound(numberOfNodes);
+            var neighbours = adjMap["osm_adjacency"][startNode];
+            var randIndx = randomIntBound(neighbours.length);
 
-                    var sprite = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-                    sprite.setAttribute("r", ""+params.spriteRadius);
-                    sprite.setAttribute("cx", getNodePosition(startNode).x);
-                    sprite.setAttribute("cy", getNodePosition(startNode).y);
-                    sprite.setAttribute("class", "person");
-                    sprite.setAttribute("fill", "#f0f");
-                    sprite.setAttribute("data-sprite-id", i); // Might be redundant, but should be useful for debugging
-                    peopleGroup.appendChild(sprite);
+            var sprite = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            sprite.setAttribute("r", ""+params.spriteRadius);
+            sprite.setAttribute("cx", getNodePosition(startNode).x);
+            sprite.setAttribute("cy", getNodePosition(startNode).y);
+            sprite.setAttribute("class", "person");
+            sprite.setAttribute("fill", spriteCallStatus.none);
+            sprite.setAttribute("data-sprite-id", i); // Might be redundant, but should be useful for debugging
+            peopleGroup.appendChild(sprite);
 
-                    var id = { month: getMonth(), number: i };
+            var id = { month: getMonth(), number: i };
 
-                    sprites.push(new Sprite(id, startNode, neighbours[randIndx], getNodePosition(startNode), sprite));
-            }
+            sprites.push(new Sprite(id, startNode, neighbours[randIndx], getNodePosition(startNode), sprite));
         }
-//
-    var toghrulsVariable;
+    }
+
+    var gameTime; // Total amount of time the game has been playing (unpaused) for
+    setGameTime(0);
+    function setGameTime(v) {
+        gameTime = v;
+        fillElemsOfClass("time-display", v);
+    }
     var timer; //the "time elapsed" chronometer
-//    var GAME_PAUSED = false;
+    //    var GAME_PAUSED = false;
     var GAME_UNPAUSED = false;
     var lastPaused; //the latest time when the game was paused by the game loop
+
     function showStart() {
-        toghrulsVariable = document.getElementById("map");
-        toghrulsVariable.style.filter = "blur(5px)";
-        var startScreenSquare = document.getElementById("commScreen");
-        startScreenSquare.style.visibility = "visible";
-        document.getElementById("message").innerHTML = "Welcome to &quot;Mobile Network Game&quot;. The objective of the game is to have non-negative balance of ¤ for as long as possible.";
-        document.getElementById("p1").innerHTML = "Click on the tower icon (that wil soon appear) to place a tower. Towers initially cost 50¤, but their cost will gradually increase after every month. There is a monthly maintenance charge for each tower.";
-        document.getElementById("p2").innerHTML = "Sprites on the map correspond to subscribers. They will periodically try to make a call and succeed iff they happen to be within range of an available tower.";
-        document.getElementById("p3").innerHTML = "Towers can handle up to three concurrent calls. You will receive 5¤ for a successful call and lose 2¤ for a failed one.";
-        document.getElementById("p4").innerHTML = "Click the button below to start the game.";
+        svg.style.filter = "blur(5px)";
+        document.getElementById("start-screen").style.visibility = "visible";
     }
+    
     function hideScreen() {
-        toghrulsVariable = document.getElementById("map");
-        toghrulsVariable.style.filter = "blur(0px)";
-        var startScreenSquare = document.getElementById("commScreen");
-        startScreenSquare.style.visibility = "hidden";
+        svg.style.filter = "blur(0px)";
+        var screens = document.getElementsByClassName("screen");
+        for (var i = 0; i < screens.length; i++) {
+            screens[i].style.visibility = "hidden";
+        }
         startTimer();
     }
 
     function endGame() {
         stopTimer();
-        toghrulsVariable = document.getElementById("map");
-        toghrulsVariable.style.filter = "blur(5px)";
-        var timeSpan = document.getElementById("time");
-        var score = parseInt(timeSpan.innerHTML);
-        var endScreenSquare = document.getElementById("commScreen");
-        endScreenSquare.style.visibility = "visible";
-        document.getElementById("message").innerHTML = "Game over. Your network was functional for " + score.toString() + " seconds.";
-        document.getElementById("p1").innerHTML = "During its lifetime, your network successfully handled "+totalSuccCalls+" calls, and failed to handle "+totalFailedCalls+".";
-        document.getElementById("p2").innerHTML = "Overall, you managed to place "+towers.length+" tower(s).";
-        document.getElementById("p3").innerHTML = "If you'd like to be considered for career opportunities, please submit your score below!";
-        document.getElementById("p4").innerHTML = "";
-        document.getElementById("commButton").style.visibility = "hidden";
+        svg.style.filter = "blur(5px)";
+        var formFeedback = document.getElementById("form-feedback");
+        formFeedback.style.display = 'none';
         var form = document.getElementById('submitForm');
-        form.style.display = '';
+        form.style.display = 'block';
         form.addEventListener('submit', function (event) {
             event.preventDefault();
             var httpRequest = new XMLHttpRequest();
             httpRequest.onload = handleResponse;
             httpRequest.open('POST', '/submit-score', true);
             httpRequest.setRequestHeader("Content-Type", "application/json");
-            httpRequest.send(JSON.stringify({ email: document.getElementById('email-input').value, score: score.toString() }));
+            httpRequest.send(JSON.stringify({ email: document.getElementById('email-input').value, score: gameTime }));
             function handleResponse() {
                 if (httpRequest.readyState === XMLHttpRequest.DONE) {
                     if (httpRequest.status === 200) {
                         form.style.display = 'none';
-                        document.getElementById('p4').innerHTML = 'Thank you, your score has now been submitted.'
+                        formFeedback.style.display = 'block';
                     } else {
                         alert('There was a problem with the request. Please make sure you enter a valid email address.');
                     }
                 }
             }
         }, false);
+        document.getElementById("end-screen").style.visibility = "visible";
     }
 
     function unpause() {
@@ -153,24 +184,17 @@
 
     function showMonthly() {
         stopTimer();
-    var cost = maintainTowers();
-        toghrulsVariable = document.getElementById("map");
-        toghrulsVariable.style.filter = "blur(5px)";
-        var startScreenSquare = document.getElementById("commScreen");
-        startScreenSquare.style.visibility = "visible";
-        document.getElementById("message").innerHTML = "A month has passed. Here is the summary:";
-    document.getElementById("p1").innerHTML = "Calls attempted: "+(succCalls+failedCalls);
-        document.getElementById("p2").innerHTML = "Calls successfully handled by the network: "+succCalls;
-        document.getElementById("p3").innerHTML = "You have been charged "+cost+"¤ for tower maintenance. A tower now costs "+getTowerPrice().toString()+"¤."
-        document.getElementById("p4").innerHTML = "Click the button below to continue the game."
-        succCalls = 0;
-        failedCalls = 0;
-        var startGameButton = document.getElementById("commButton");
-        startGameButton.textContent = "continue game";
-        startGameButton.onclick = function() {
+        var cost = maintainTowers();
+        svg.style.filter = "blur(5px)";
+
+        document.getElementById("continue-btn").onclick = function() {
             hideScreen();
             unpause();
+            setSuccCalls(0);
+            setFailedCalls(0);
         };
+
+        document.getElementById("monthly-screen").style.visibility = "visible";
     }
 //
 
@@ -179,9 +203,6 @@
         svg = document.getElementById('map');
         var svgWidth = svg.width.baseVal.value; // Width (in px) of SVG element (we would like to be able to set the width here, but there seem to be some difficulties doing that)
         var svgHeight = svg.height.baseVal.value;
-        mapScaling = Math.min(svgWidth / DEF_WIDTH, svgHeight / DEF_HEIGHT); // Magnify the map as much as possible without cropping it
-        svg.setAttribute("viewBox", "0 0 " + (svgWidth / mapScaling) + " " + (svgHeight / mapScaling)); // Zoom in on the top left corner
-        svg.style.backgroundSize = (mapScaling * DEF_WIDTH) + "px " + (mapScaling * DEF_HEIGHT) + "px"; // background-size:auto auto (the default) is DEF_WIDTH DEF_HEIGHT
 
         peopleGroup = document.getElementById('people-group');
         towerGroup = document.getElementById('tower-group');
@@ -192,26 +213,48 @@
         towers = new Array();
 
         // Previously with JQuery, now inline in adj_graph.js
-                adjMap = ADJ_GRAPH;
-                initialiseSprites(params.numberOfSprites);
+        adjMap = ADJ_GRAPH;
+        initialiseSprites(params.numberOfSprites);
 
-        //get coordinates of the event
-        //used both in svg.onmousemove and svg.onclick
+        // Get coordinates of the event
+        // Used both in svg.onmousemove and svg.onclick
         function getcxcy(event) {
+            var container = document.getElementById('container').getBoundingClientRect();
+            var containerAspect = container.width/container.height;
+            var mapAspect = DEF_WIDTH/DEF_HEIGHT;
+            var leftOffset = containerAspect > mapAspect ? (container.width - container.height * mapAspect)/2 : 0;
+            var topOffset = mapAspect > containerAspect ? (container.height - container.width / mapAspect)/2 : 0;
             var boundary = svg.getBoundingClientRect();
             var viewBox = svg.viewBox.baseVal; // An object with the 4 values specifying the viewBox attribute (named x, y, width, height)
-            // Calculate the centre of the tower
-            var cx = viewBox.x + ((event.clientX - boundary.left) / mapScaling); // Convert screen units to user units
-            var cy = viewBox.y + ((event.clientY - boundary.top) / mapScaling);
-
+            var cx = viewBox.x + Math.max(0, Math.min(DEF_WIDTH, viewBox.width*(event.clientX - leftOffset - boundary.left)/(boundary.width - 2 * leftOffset)));
+            var cy = viewBox.y + Math.max(0, Math.min(DEF_HEIGHT, viewBox.height*(event.clientY - topOffset - boundary.top)/(boundary.height - 2 * topOffset)));
             return [cx, cy];
+        }
+
+        //helper function: detects if currentPendingAction is a placeTower action
+        //modify here if more types are introduced
+        function currentPendingActionIsPlaceTower() {
+            return currentPendingAction === pendingActions.placeTower1 ||
+                   currentPendingAction === pendingActions.placeTower2;
+        }
+
+        //helper function: if currentPendingAction is a placeTower action,
+        //return the type of tower to place.
+        //modify here if more types are introduced
+        function getTowerTypeToPlace() {
+            return currentPendingActionIsPlaceTower() ? currentPendingAction : -1;
         }
 
         //show indication of range before atually putting down the tower
         //range moves with mouse
         svg.onmousemove = function(event) {
             //check if player is going to place a tower
-            if (currentPendingAction === pendingActions.placeTower) {
+            if (currentPendingActionIsPlaceTower()) {
+
+                //get selected type of tower
+                var typeOfTower = getTowerTypeToPlace();
+                console.assert(typeOfTower > 0);
+
                 //get cursor location
                 var cxcy = getcxcy(event);
                 var cx = cxcy[0];
@@ -222,7 +265,7 @@
                 if (document.getElementById("tempRange") == null) {
                     //temporary range not found, create one
                     var range = document.createElementNS("http://www.w3.org/2000/svg", "circle"); // A circle indicating the geographical range covered by the tower
-                    range.setAttribute("r", TOWER_RANGE);
+                    range.setAttribute("r", TOWER_RANGE[typeOfTower]);
                     range.setAttribute("class", "range-indicator");
                     range.setAttribute("cx", cx);
                     range.setAttribute("cy", cy);
@@ -241,10 +284,17 @@
 
 
         svg.onclick = function(event) {
-            if (currentPendingAction === pendingActions.placeTower) {
+            if (currentPendingActionIsPlaceTower()) {
+
+                //get selected type of tower
+                var typeOfTower = getTowerTypeToPlace();
+                console.assert(typeOfTower > 0);
+
+                //placingTower action is successful, end this action.
+                //Note: this must be done AFTER we get the type of tower to place, because that inspects the currentPendingAction, and cancelPlacingTower() sets it to none.
                 cancelPlacingTower();
 
-                if (getBalance() >= 50) {
+                if (getBalance() >= getTowerPrice()) {
                     //get cursor location
                     //extracted out the function getcxcy because it's also used in svg.onmousemove
                     var cxcy = getcxcy(event);
@@ -261,11 +311,11 @@
                     var towerId = towers.length;
                     tower.setAttribute("data-tower-id", towerId);
                     towerGroup.appendChild(tower); // Add the tower to the map
-                    towers.push(new Tower(towerId, new Position(cx, cy))); // Store the new tower
+                    new Tower(towerId, new Position(cx, cy), typeOfTower); // Store the new tower
 
                     //add range indication
                     var range = document.createElementNS("http://www.w3.org/2000/svg", "circle"); // A circle indicating the geographical range covered by the tower
-                    range.setAttribute("r", TOWER_RANGE);
+                    range.setAttribute("r", TOWER_RANGE[typeOfTower]);
                     range.setAttribute("cx", cx);
                     range.setAttribute("cy", cy);
                     range.setAttribute("class", "range-indicator");
@@ -293,11 +343,8 @@
                     loadRingCover.setAttribute("transform", "rotate(270 " + cx + " " + cy + ")");
                     towerLoadGroup.appendChild(loadRingCover);
 
-
-                                    incrementBalance(-getTowerPrice());
-
-                }
-                else {
+                    incrementBalance(-getTowerPrice());
+                } else {
                     playSound(BAD_ACTION);
                     //show message that there's not enough balance
                     var balanceNotEnoughDiv = document.getElementById("balanceNotEnough");
@@ -307,7 +354,6 @@
                     setTimeout(function(){
                         balanceNotEnoughDiv.style.display = "none";
                     }, 2000)
-
                 }
 
             };
@@ -320,7 +366,12 @@
         removeTempRange();
         currentPendingAction = pendingActions.none;
         cancelPlacingTowerButton.style.display = "none";
-        placeTowerButton.style.display = "inline";
+
+        var buttons = document.getElementsByClassName("placeTower");
+        for (var i = 0; i < buttons.length; i++) {
+            buttons[i].style.display = "inline";
+        }
+
         //hide #explanation paragraph.
         document.getElementById("explanation").style.display = "none";
     }
@@ -344,7 +395,7 @@
         var elapsed;
 
         if (!GAME_UNPAUSED) {
-        elapsed = timestamp - startTime;
+            elapsed = timestamp - startTime;
         } else {
             elapsed = 0;
             GAME_UNPAUSED = false;
@@ -370,11 +421,11 @@
         }
     };
 
-        function newMonth () {
-            incrementMonth(1);
-            initialiseSprites(getMonth());
-            incrementTowerPrice(5);
-        }
+    function newMonth () {
+        incrementMonth(1);
+        initialiseSprites(getMonth());
+        incrementTowerPrice(5);
+    }
 
     //Sprites
 
@@ -383,15 +434,16 @@
         this.previousNode = prevNode;
         this.targetNode = targetNode;
         this.pos = pos;
-                this.callStatus = spriteCallStatus.none;
-                this.elem = elem; // The SVG element representing the sprite
-                this.lastTower = null;
+        this.callStatus = spriteCallStatus.none;
+        this.elem = elem; // The SVG element representing the sprite
+        this.lastTower = null;
     }
+    var black_hole = {x:0, y:0};
     Sprite.prototype.update = function (tFrame) {
-              // if sprite is idle, maybe place a call
-                if (this.callStatus === spriteCallStatus.none) { placeCallMaybe(this); }
-                // in call => stationary
-                if (this.callStatus !== spriteCallStatus.none) { tFrame = 0; }
+        // if sprite is idle, maybe place a call
+        if (this.callStatus === spriteCallStatus.none) { placeCallMaybe(this); }
+        // in call => stationary
+        if (this.callStatus !== spriteCallStatus.none) { tFrame = 0; }
         // move increment
         var ds = params.spriteSpeed * tFrame; // how far to move
         var source = getNodePosition(this.previousNode);
@@ -399,10 +451,6 @@
         var angle = Math.atan2(dest.y-source.y, dest.x-source.x);
         var dy = Math.sin(angle) * ds;
         var dx = Math.cos(angle) * ds;
-
-        if (this.pos.distanceTo(dest) < ds) {
-          console.log("overstep");
-        }
 
         this.pos.x += dx;
         this.pos.y += dy;
@@ -413,6 +461,30 @@
             this.previousNode = this.targetNode;
 
             // Set this this to face a random neighbour
+            // actually, no. Set this to face the neighbour with angle closest to the black hole with some reasonably high probability
+
+/*
+            var target_angle = Math.atan2(black_hole.y-this.pos.y, black_hole.x-this.pos.x);
+            var neighbours = adjMap["osm_adjacency"][this.previousNode];
+            var x = this.pos.x
+            var y = this.pos.y
+            var angle_offsets = neighbours.map(function(n) {
+                                                 var neighbour = getNodePosition(n);
+                                                 var angle = Math.atan2(neighbour.y-y, neighbour.x-x);
+                                                 return Math.abs(angle-target_angle);
+                                               });
+            var lowest = 0;
+            for (var i = 1; i < angle_offsets.length; i++) {
+              if (angle_offsets[i] < angle_offsets[lowest]) lowest = i;
+            }
+
+            //   ...and avoid going backwards
+            if (this.previousNode == neighbours[lowest]) {
+                randIndx = (randIndx + 1) % neighbours.length;
+            }
+            this.targetNode = neighbours[lowest];
+*/
+
             var neighbours = adjMap["osm_adjacency"][this.previousNode];
             var randIndx = randomIntBound(neighbours.length);
             //   ...and avoid going backwards
@@ -427,70 +499,76 @@
         this.elem.setAttribute("cy", this.pos.y);
         this.elem.setAttribute("fill", this.callStatus);
 
-                function placeCallMaybe(sprite) {
-                    if (randomIntBound(1/params.callProbabilityPerUpdate) < 1) {
-                        var ringRing = setInterval(function () {
-                            if (sprite.callStatus === spriteCallStatus.dialing) {
-                                sprite.callStatus = spriteCallStatus.dialingPulse;
-                            } else {
-                                sprite.callStatus = spriteCallStatus.dialing;
-                            }
-                        }, 50);
-                        setTimeout(function () {
-                            clearInterval(ringRing);
-                            if (handleCall(sprite)) {
-                                sprite.callStatus = spriteCallStatus.success;
-F                           } else {
-                                sprite.callStatus = spriteCallStatus.failure;
-                            }
-                        }, params.callDuration/3);
-                        setTimeout(function () {
-                            // If callStatus is success then here we will want to decrement the load of the appropriate tower
-                            if (sprite.lastTower !== null) {
-                                sprite.lastTower.decrementLoad();
-
-                                //update the tower load visual indication
-                                sprite.lastTower.updateLoadIndication();
-
-                                sprite.lastTower = null;
-                            }
-                            sprite.callStatus = spriteCallStatus.none;
-                        }, params.callDuration);
+        function placeCallMaybe(sprite) {
+            if (randomIntBound(1/params.callProbabilityPerUpdate) < 1) {
+                var ringRing = setInterval(function () {
+                    if (sprite.callStatus === spriteCallStatus.dialing) {
+                        sprite.callStatus = spriteCallStatus.dialingPulse;
+                    } else {
+                        sprite.callStatus = spriteCallStatus.dialing;
                     }
+                }, 50);
+                setTimeout(function () {
+                    clearInterval(ringRing);
+                    if (handleCall(sprite)) {
+                        sprite.callStatus = spriteCallStatus.success;
+                    } else {
+                        sprite.callStatus = spriteCallStatus.failure;
+                    }
+                }, params.callDuration/3);
+                setTimeout(function () {
+                    // If callStatus is success then here we will want to decrement the load of the appropriate tower
+                    if (sprite.lastTower !== null) {
+                        sprite.lastTower.decrementLoad();
 
-                    function handleCall(sprite) {
-                        for(let tower of towers) {
-                            if ((sprite.pos.distanceTo(tower.pos) < TOWER_RANGE) && (tower.load < MAX_LOAD)) {
-                                // // If the sprite is in range of this tower
-                                // Increment tower.load here (once we implement a way of decrementing when the call finishes--presumably the sprite will have to make a note of which tower it's using)
-                                tower.incrementLoad();
+                        //update the tower load visual indication
+                        sprite.lastTower.updateLoadIndication();
 
-                                //update the tower load visual indication
-                                tower.updateLoadIndication();
+                        sprite.lastTower = null;
+                    }
+                    sprite.callStatus = spriteCallStatus.none;
+                }, params.callDuration);
+            }
 
-                                sprite.lastTower = tower;
-                                incrementBalance(params.successCallCredit);
-                playSound(CALL_SUCCESS);
-                                totalSuccCalls = totalSuccCalls + 1;
-                                succCalls = succCalls + 1;
-                                return true;
-                            }
-                        }
-                        incrementBalance(params.failureCallCredit);
-            playSound(CALL_FAIL);
-                        totalFailedCalls = totalFailedCalls + 1;
-                        failedCalls = failedCalls + 1;
-                        return false;
+            function handleCall(sprite) {
+                for(let tower of towers) {
+                    if ((sprite.pos.distanceTo(tower.pos) < tower.range) && (tower.load < tower.capacity)) {
+                        // // If the sprite is in range of this tower
+                        // Increment tower.load here (once we implement a way of decrementing when the call finishes--presumably the sprite will have to make a note of which tower it's using)
+                        tower.incrementLoad();
+
+                        //update the tower load visual indication
+                        tower.updateLoadIndication();
+
+                        sprite.lastTower = tower;
+                        incrementBalance(params.successCallCredit);
+                        playSound(CALL_SUCCESS);
+                        setTotalSuccCalls(totalSuccCalls + 1);
+                        setSuccCalls(succCalls + 1);
+                        return true;
                     }
                 }
+                incrementBalance(params.failureCallCredit);
+                playSound(CALL_FAIL);
+                setTotalFailedCalls(totalFailedCalls + 1);
+                setFailedCalls(failedCalls + 1);
+                return false;
+            }
+        }
     };
 
     //Towers
 
-    function Tower(id, pos) {
+    function Tower(id, pos, type) {
         this.id = id;
         this.pos = pos;
         this.load = 0; // Towers are initially handling 0 simultaneous calls
+
+        //towers have different types
+        this.range = TOWER_RANGE[type];
+        this.capacity = MAX_LOAD[type];
+        towers.push(this);
+        fillElemsOfClass("towers-display", towers.length);
     };
 
     Tower.prototype.incrementLoad = function() {
@@ -503,7 +581,7 @@ F                           } else {
     //Tower load indication
     Tower.prototype.updateLoadIndication = function() {
         var loadVisualCover = document.getElementById("load-ring-cover" + this.id);
-        var offset = TOWER_LOAD_VISUAL_CIRCUMFERENCE * (1 - this.load / MAX_LOAD);
+        var offset = TOWER_LOAD_VISUAL_CIRCUMFERENCE * (1 - this.load / this.capacity);
         loadVisualCover.setAttribute("stroke-dashoffset", offset)
     }
 
@@ -518,54 +596,62 @@ F                           } else {
         return Math.sqrt(dx*dx + dy*dy);
     };
 
-        // Budgetry
-        function getBalance() {
-            return parseInt(document.getElementById("balance").innerHTML);
-        }
-        function setBalance(newBalance) {
-            document.getElementById("balance").innerHTML = ""+newBalance;
-        }
-        function incrementBalance(by) {
-            setBalance(getBalance()+by);
-            if (getBalance() < 0) { document.getElementById("gameOver").style.display = "inline"; }
-        }
-        function getTowerPrice() {
-            return parseInt(document.getElementById("towerPrice").innerHTML);
-        }
-        function setTowerPrice(newPrice) {
-            document.getElementById("towerPrice").innerHTML = ""+newPrice;
-        }
-        function incrementTowerPrice(by) {
-            setTowerPrice(getTowerPrice()+by);
-        }
-        function maintainTowers() {
-            var cost = towers.length * 5;
-            setBalance(getBalance() - cost);
-            return cost;
-        }
+    // Budgetry
+    var balance;
+    setBalance(200);
+    function getBalance() {
+        return balance;
+    }
+    function setBalance(newBalance) {
+        balance = newBalance;
+        fillElemsOfClass("balance-display", newBalance);
+    }
+    function incrementBalance(by) {
+        setBalance(getBalance()+by);
+    }
+    var towerPrice;
+    setTowerPrice(50);
+    function getTowerPrice() {
+        return towerPrice;
+    }
+    function setTowerPrice(newPrice) {
+        towerPrice = newPrice;
+        fillElemsOfClass("tower-price-display", newPrice);
+    }
+    function incrementTowerPrice(by) {
+        setTowerPrice(getTowerPrice()+by);
+    }
+    function maintainTowers() {
+        var cost = towers.length * 5;
+        setBalance(getBalance() - cost);
+        fillElemsOfClass("maintenance-display", cost);
+        return cost;
+    }
 
-        // Timekeeping
-                function startTimer() {
-                    timer = setInterval(function(){
-                var timeSpan = document.getElementById("time");
-                timeSpan.innerHTML = parseInt(timeSpan.innerHTML)+1;
-            }, 1000);
-                }
-                function stopTimer() {
-            clearInterval(timer);
-        }
-        function hasMonthPassed(timestamp) {
-            return (timestamp - lastMonthStart > 10000);
-        }
-        function getMonth() {
-            return parseInt(document.getElementById("month").innerHTML);
-        }
-        function setMonth(newMonth) {
-            document.getElementById("month").innerHTML = ""+newMonth;
-        }
-        function incrementMonth(by) {
-            setMonth(getMonth()+by);
-        }
+    // Timekeeping
+    function startTimer() {
+        timer = setInterval(function(){
+            setGameTime(gameTime + 1);
+        }, 1000);
+    }
+    function stopTimer() {
+        clearInterval(timer);
+    }
+    function hasMonthPassed(timestamp) {
+        return (timestamp - lastMonthStart > params.monthLength);
+    }
+    var currentMonth;
+    setMonth(0);
+    function getMonth() {
+        return currentMonth;
+    }
+    function setMonth(newMonth) {
+        currentMonth = newMonth;
+        fillElemsOfClass("month-display", newMonth);
+    }
+    function incrementMonth(by) {
+        setMonth(getMonth()+by);
+    }
 
     // Helper methods
     function getNodePosition(n) {
@@ -576,50 +662,64 @@ F                           } else {
     }
 
     //make sure all DOMs are loaded before operating on them
-    document.addEventListener("DOMContentLoaded", function(){
-                // window visibility
-                var oldParams = JSON.parse(JSON.stringify(params)); // object clone
-                window.onfocus = function() {
-                    console.log("focus");
-                    params = JSON.parse(JSON.stringify(oldParams));
-                };
-                window.onblur = function() {
-                    console.log("blur");
-                    params.spriteSpeed = 0;
-                    params.callProbabilityPerUpdate = 0;
-                };
+    document.addEventListener("DOMContentLoaded", function () {
+        // window visibility
+        var oldParams = JSON.parse(JSON.stringify(params)); // object clone
+        window.onfocus = function() {
+            console.log("focus");
+            params = JSON.parse(JSON.stringify(oldParams));
+        };
+        window.onblur = function() {
+            console.log("blur");
+            params.spriteSpeed = 0;
+            params.callProbabilityPerUpdate = 0;
+        };
 
         //bind button actions
-        var startGameButton = document.getElementById("commButton");
-        startGameButton.onclick = function() {
-            document.getElementById("placeTower").style.display = "inline"; //show button for placing tower
+        document.getElementById("start-btn").onclick = function () {
+            var buttons = document.getElementsByClassName("placeTower");
+            for (var i = 0; i < buttons.length; i++) {
+                buttons[i].style.display = "inline";
+            }
             //starting and stopping the "time elapsed" chronometer is done by methods showing/hiding start'monthly feedback/endgame screens
             hideScreen();
             window.requestAnimationFrame(gameLoop);
         };
 
-
-        placeTowerButton = document.getElementById("placeTower");
         cancelPlacingTowerButton = document.getElementById("cancelPlacingTower");
-
-        placeTowerButton.onclick = function() {
-            currentPendingAction = pendingActions.placeTower;
-            placeTowerButton.style.display = "none";
-            cancelPlacingTowerButton.style.display = "inline";
-            document.getElementById("explanation").style.display = "inline"; //show explanation
-        };
-
         cancelPlacingTowerButton.onclick = cancelPlacingTower;
 
-        // Blinking effect on "Sprite dialing..." key
-        setInterval(function() {
-            var style = document.getElementById("dialing").style;
-            if (style.color === "rgb(0, 255, 255)") {
-                style.color = spriteCallStatus.dialingPulse;
-            } else {
-                style.color = spriteCallStatus.dialing;
+        document.getElementById("placeTower1").onclick = function() {
+            placeTower(1);
+        };
+        document.getElementById("placeTower2").onclick = function() {
+            placeTower(2);
+        };
+
+        function placeTower(type) { //place a specific type of tower
+            var explanationParagraph = '';
+            switch (type) {
+                case 1: //tower of type 1
+                    currentPendingAction = pendingActions.placeTower1;
+                    placeTowerButton = document.getElementById("placeTower1");
+                    explanationParagraph = "Click on map to place a tower with large radius."
+                    break;
+                case 2:
+                    currentPendingAction = pendingActions.placeTower2;
+                    placeTowerButton = document.getElementById("placeTower2");
+                    explanationParagraph = "Click on map to place a tower with high capacity."
+            };
+
+            var buttons = document.getElementsByClassName("placeTower");
+            for (var i = 0; i < buttons.length; i++) {
+                buttons[i].style.display = "none";
             }
-        }, 500);
+            cancelPlacingTowerButton.style.display = "inline";
+
+            var explanation = document.getElementById("explanation");
+            explanation.children[0].innerHTML = explanationParagraph;
+            explanation.style.display = "inline";
+        }
 
         //initialise game
         initialise();
