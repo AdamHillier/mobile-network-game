@@ -138,14 +138,14 @@
 
     function showStart() {
         svg.style.filter = "blur(5px)";
-        document.getElementById("start-screen").style.visibility = "visible";
+        document.getElementById("start-screen").style.display = "block";
     }
 
     function hideScreen() {
         svg.style.filter = "blur(0px)";
         var screens = document.getElementsByClassName("screen");
         for (var i = 0; i < screens.length; i++) {
-            screens[i].style.visibility = "hidden";
+            screens[i].style.display = "none";
         }
         startTimer();
     }
@@ -175,7 +175,7 @@
                 }
             }
         }, false);
-        document.getElementById("end-screen").style.visibility = "visible";
+        document.getElementById("end-screen").style.display = "block";
     }
 
     function unpause() {
@@ -195,7 +195,7 @@
             setFailedCalls(0);
         };
 
-        document.getElementById("monthly-screen").style.visibility = "visible";
+        document.getElementById("monthly-screen").style.display = "block";
     }
 //
 

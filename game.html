@@ -90,19 +90,20 @@
         </div>
 
         <div class="screen" id="start-screen">
-    		<p>Welcome to &quot;Mobile Network Game&quot;. The objective of the game is to have non-negative balance of ¤ for as long as possible.</p>
-    		<p>Click on the tower icon (that will soon appear) to place a tower. Towers initially cost <span class="tower-price-display"></span>¤, but their cost will gradually increase after every month. There is a monthly maintenance charge for each tower.</p>
+        	<h2>Welcome to</h2>
+        	<h1>Mobile Network Game</h1>
+    		<p>You are the manager of a telecomms company connecting mobile phone calls. The objective of the game is to keep your balance from falling below <span class="money">0¤</span> for as long as possible.</p>
+    		<p>Click on the tower icon (that will soon appear) to place a tower. Towers initially cost <span class="money"><span class="tower-price-display"></span>¤</span>, but their cost will gradually increase after every month. There is a monthly maintenance charge for each tower.</p>
     		<p>Sprites on the map correspond to subscribers. They will periodically try to make a call and succeed iff they happen to be within range of an available tower.</p>
-    		<p>Towers can handle up to three concurrent calls. You will receive 5¤ for a successful call and lose 2¤ for a failed one.</p>
-    		<p>Click the button below to start the game.</p>
-    		<button type="button" id="start-btn">Start game</button>
+    		<p>Towers can handle up to three concurrent calls. You will receive <span class="money">5¤</span> for a successful call and lose <span class="money">2¤</span> for a failed one.</p>
+    		<button type="button" id="start-btn">Start game!</button>
         </div>
 
         <div class="screen" id="end-screen">
     		<p>Game over. Your network was functional for <span class="time-display"></span> seconds.</p>
-    		<p>During its lifetime, your network successfully handled <span class="total-succ-display"></span> calls, and failed to handle <span class="total-fail-display"></span>.</p>
+    		<p>During its lifetime, your network successfully handled <span class="total-succ-display succ"></span> calls, and failed to handle <span class="total-fail-display fail"></span>.</p>
     		<p>Overall, you managed to place <span class="towers-display"></span> tower(s).</p>
-    		<p>If you'd like to be considered for career opportunities, please submit your score below!</p>
+    		<p>If you'd like to be considered for career opportunities, please submit your email address below!</p>
     		<form id='submitForm' action='submit-score' method='post'>
                 <input id='email-input' type='email' placeholder='Email' autofocus required>
                 <button type="submit" id="formSubmit">Send</button>
@@ -113,9 +114,8 @@
         <div class="screen" id="monthly-screen">
     		<p>A month has passed. Here is the summary:</p>
     		<p>Calls attempted: <span class="calls-display"></span></p>
-    		<p>Calls successfully handled by the network: <span class="succ-display"></span></p>
-    		<p>You have been charged <span class="maintenance-display"></span>¤ for tower maintenance. A tower now costs <span class="tower-price-display"></span>¤.</p>
-    		<p>Click the button below to continue the game.</p>
+    		<p>Calls successfully handled by the network: <span class="succ-display succ"></span></p>
+    		<p>You have been charged <span class="money"><span class="maintenance-display"></span>¤</span> for tower maintenance. A tower now costs <span class="money"><span class="tower-price-display"></span>¤</span>.</p>
     		<button type="button" id="continue-btn">Continue game</button>
         </div>
 
