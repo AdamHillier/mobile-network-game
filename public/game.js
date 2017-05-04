@@ -133,6 +133,7 @@
     var timer; //the "time elapsed" chronometer
     //    var GAME_PAUSED = false;
     var GAME_UNPAUSED = false;
+		var GAME_UNBLURRED = false; // has the game just returned from a blurred/invisible state
     var lastPaused; //the latest time when the game was paused by the game loop
 
     function showStart() {
@@ -402,10 +403,13 @@
             lastMonthStart = timestamp;
         }
         startTime = timestamp;
+				
+				if (GAME_UNBLURRED) { elapsed = 16; }
 
-        if (elapsed > 100) {
+       /* if (elapsed > 100) {
+						console.log(elapsed);
             elapsed = 16;
-        }; // hack!! elapsed is very long when tab comes from background in Chrome
+        }; // hack!! elapsed is very long when tab comes from background in Chrome */
 
         sprites.forEach(function(sprite) {
             sprite.update(elapsed);
@@ -666,14 +670,27 @@
         // window visibility
         var oldParams = JSON.parse(JSON.stringify(params)); // object clone
         window.onfocus = function() {
-            console.log("focus");
+            console.log("onfocus");
             params = JSON.parse(JSON.stringify(oldParams));
         };
         window.onblur = function() {
-            console.log("blur");
+						GAME_UNBLURRED = true;
+            console.log("onblur");
             params.spriteSpeed = 0;
             params.callProbabilityPerUpdate = 0;
         };
+				
+				function visibilitychange() {
+					console.log(document.visibilityState);
+					if (document.visibilityState === "visible") {
+						window.onfocus();
+					} else {
+						window.onblur();
+					}
+				}
+				
+				document.addEventListener("visibilitychange", visibilitychange, "false");
+				
 
         //bind button actions
         document.getElementById("start-btn").onclick = function () {
