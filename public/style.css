@@ -67,7 +67,7 @@ circle.load-ring-cover {
 	background-color: #01111d;
 }
 
-#balanceDisplay, #buttons, #status, #volume {
+#balanceDisplay, #timeDisplay, #buttons, #status, #volume {
 	display: inline-block;
 	vertical-align: middle;
 }
@@ -79,9 +79,13 @@ circle.load-ring-cover {
 	text-align:center;
 }
 
+#timeDisplay {
+	width:10%;
+}
+
 #buttons {
-	width:20%;
-	padding-top:3px;
+	width:15%;
+	margin-top:3px;
 }
 
 .placeTower {
@@ -135,7 +139,7 @@ circle.load-ring-cover {
 }
 
 #status {
-	width: 40%;
+	width: 35%;
 }
 
 #explanation, #balanceNotEnough {
@@ -163,21 +167,6 @@ circle.load-ring-cover {
 }
 
 
-
-.keySprite, h1 {
-    font-size: xx-large;
-}
-.keySprite {
-    line-height: 20px;
-    position: relative;
-    top: 4.5px;
-}
-#info {
-    display: none;
-    float: right;
-    max-width: 33%;
-}
-
 h1, h2 {
     text-align:center;
     font-family: Georgia, serif;
@@ -193,20 +182,6 @@ h2 {
 	margin-bottom:0;
 }
 
-
-
-#monthDisplay, #timeDisplay {
-    font-size: large;
-    font-weight: bold;
-}
-#gameOver {
-    color: red;
-    display: none;
-}
-
-.monthly {
-    display: none;
-}
 .screen {
     position: absolute;
     top: 50%;
