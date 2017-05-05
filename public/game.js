@@ -625,10 +625,16 @@
     function incrementTowerPrice(by) {
         setTowerPrice(getTowerPrice()+by);
     }
+    var maintenancePerTower;
+    setMaintenance(5);
+    function setMaintenance(newCost) {
+        maintenancePerTower = newCost;
+        fillElemsOfClass("maintenance-per-tower-display", newCost);
+    }
     function maintainTowers() {
-        var cost = towers.length * 5;
+        var cost = towers.length * maintenancePerTower;
         setBalance(getBalance() - cost);
-        fillElemsOfClass("maintenance-display", cost);
+        fillElemsOfClass("maintenance-bill-display", cost);
         return cost;
     }
 

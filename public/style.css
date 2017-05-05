@@ -62,7 +62,7 @@ circle.load-ring-cover {
 	position:absolute;
 	left: 0;
 	bottom: 0;
-	height: 60px;
+	height: 75px;
 	width: 100%;
 	background-color: #01111d;
 }
@@ -81,6 +81,7 @@ circle.load-ring-cover {
 
 #buttons {
 	width:20%;
+	padding-top:3px;
 }
 
 .placeTower {
@@ -105,20 +106,32 @@ circle.load-ring-cover {
 	width: 50px;
 	margin: 5px;
 	cursor: pointer;
+	font-size: 14px;
+	color: #003e77;
 }
 
 #buttons > button:hover {
 	background-color: #0167c4;
+	color: #0167c4;
 }
 
-.placeTower p {
+.btn-price {
 	position: relative;
-	bottom: 18px;
+	bottom: 12px;
 	padding: 0;
 	margin: 0;
 	color: #efa000;
 	font-size: 15px;
 	font-weight: bold;
+}
+
+.btn-label {
+	position: relative;
+	bottom: -20px;
+	width: 100%;
+	text-align: center;
+	padding:0;
+	margin:0;
 }
 
 #status {
@@ -262,6 +275,10 @@ h2 {
 .screen input:focus {
 	border-color:#3af;
 	transition: border-color 0.5s ease;
+}
+
+.screen img {
+	height: 20px;
 }
 
 #submitForm {
