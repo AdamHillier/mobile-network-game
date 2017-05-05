@@ -7,11 +7,11 @@
         nodeEpsilon: 1,                     // Radius in which a sprite has reached a node
         spriteSpeed: 0.005,                 // Speed of sprites
         spriteRadius: 3,
-        callProbabilityPerUpdate: 1/3000,
+        callProbabilityPerUpdate: 1/2000,
         callDuration: 5000,                 // In milliseconds
         successCallCredit: 5,
         failureCallCredit: -2,
-        monthLength: 10000                  // In milliseconds
+        monthLength: 30000                  // In milliseconds
     };
 
     function fillElemsOfClass(className, content) {
@@ -78,7 +78,7 @@
         modify here if more types are introduced.
     */
     var TOWER_RANGE = [null, 100, 60];
-    var MAX_LOAD = [null, 3, 5]; // Maximum number of calls each tower can handle simultaneously
+    var MAX_LOAD = [null, 2, 5]; // Maximum number of calls each tower can handle simultaneously
 
     var TOWER_LOAD_VISUAL_RADIUS = 12;
     var TOWER_LOAD_VISUAL_CIRCUMFERENCE = 2 * Math.PI * TOWER_LOAD_VISUAL_RADIUS;
@@ -403,7 +403,7 @@
             lastMonthStart = timestamp;
         }
         startTime = timestamp;
-				
+
 				if (GAME_UNBLURRED) { elapsed = 16; }
 
        /* if (elapsed > 100) {
@@ -679,7 +679,7 @@
             params.spriteSpeed = 0;
             params.callProbabilityPerUpdate = 0;
         };
-				
+
 				function visibilitychange() {
 					console.log(document.visibilityState);
 					if (document.visibilityState === "visible") {
@@ -688,9 +688,9 @@
 						window.onblur();
 					}
 				}
-				
+
 				document.addEventListener("visibilitychange", visibilitychange, "false");
-				
+
 
         //bind button actions
         document.getElementById("start-btn").onclick = function () {
