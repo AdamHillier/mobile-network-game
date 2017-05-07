@@ -175,6 +175,11 @@
                 }
             }
         }, false);
+        document.getElementById("restart-btn").onclick = function() {
+            // Simple solution: just reloads the page. Forces a non-cache reload to get around
+            // a buggy implementation of location.reload in Safari.
+            window.location.reload(true);
+        };
         document.getElementById("end-screen").style.display = "block";
     }
 
