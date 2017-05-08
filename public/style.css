@@ -30,7 +30,7 @@ body {
 
 .range-indicator {
 	fill:#9b694a;
-	fill-opacity:0.1;
+	fill-opacity:0.15;
 }
 
 circle.load-ring-background {
@@ -257,5 +257,11 @@ h2 {
 }
 
 #submitForm {
-    text-align: center;
+	text-align: center;
+}
+
+#formSubmit {
+    display: inline;
+    margin-left: 5px;
+    margin-top: 0;
 }
