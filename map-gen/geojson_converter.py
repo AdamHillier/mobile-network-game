@@ -3,12 +3,16 @@ import networkx as nx
 import svgwrite
 import argparse
 
+#python geojson_converter.py bbox_oxford.geojson --latitude 51.7541373 --longitude -1.2537001
+
 # Handle command line arguments
 parser = argparse.ArgumentParser()
 parser.add_argument("--min-cc-size", type=int, default=100,
   help="minimum number of nodes for a connected component to appear in the road map")
 parser.add_argument('infile',
   help="specify a geojson file, as exported from overpass-turbo.eu")
+parser.add_argument("--latitude", type=float, required=True, help="The latitude of your bounding box center")
+parser.add_argument("--longitude", type=float, required=True, help="The longitude of your bounding box center")
 args = parser.parse_args()
 
 # Extract open street map road graph
@@ -32,8 +36,8 @@ nodes_to_remove = set().union(*islands)
 G.remove_nodes_from(nodes_to_remove)
 
 # map over a coordinate transform
-center_lat = 51.7541373
-center_lon = -1.25370010000006
+center_lat = args.latitude
+center_lon = args.longitude
 def rescale(lon, lat):
   return (int((lon-center_lon)*4*10**4), \
           int((center_lat-lat)*4*10**4) )
@@ -55,11 +59,8 @@ with open('../public/adj_graph.js', 'w') as fh:
   fh.write("ADJ_GRAPH=")
   fh.write(json.dumps(wrapped, separators=(',', ':')))
 
-
-
-
 # Produce the background road map
-dwg = svgwrite.Drawing(filename="../public/static_map.svg", size=("450px", "450px"))
+dwg = svgwrite.Drawing(filename="../public/map.svg", size=("800px", "450px"))
 
 # Define a parent group for all roads
 roadmap = dwg.add(dwg.g(id='roads',

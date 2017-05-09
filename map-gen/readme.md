@@ -26,7 +26,10 @@ While the raw route data extracted from OpenStreetMap essentially captures the s
 
 The cosmetic map SVG colours are based on the OpenStreetMap 'highway' distinction (specified in the dictionary called "route_colour")
 
-Example usage: python geojson_converter.py bbox_oxford.geojson
+Example usage: Create a query for Overpass Turbo with
+`python make_query.py --latitude 51.7541373 --longitude -1.2537001`
+  and input the exported geojson to
+`python geojson_converter.py export.geojson --latitude 51.7541373 --longitude -1.2537001`
 
 Dependencies: json, networkx, svgwrite, argparse. Install with pip (Python package manager)
 
@@ -47,7 +50,7 @@ Although all the lines and curves in the images below required manual drawing, a
 
 Paths in SVG cannot have branches (as in, one point with more than two lines meeting there). However the logical map requires this, otherwise the sprites would be restricted to all walking around one big circle. The level designer is expected to use the path tool and draw **straight line** segments representing the logical map (here, displayed as a black overlay).
 
-![Inkscape screencap](https://github.com/AdamHillier/mobile-network-game/raw/new-map/img/level-editing-crop.png)
+![Inkscape screencap](https://raw.githubusercontent.com/AdamHillier/mobile-network-game/master/map-gen/img/level-editing-crop.png)
 
 To this end, the script `map-gen/create_adj_map.py` gets the layer called 'lines' within the `public/map.svg` and:
 1. Merges nearby nodes
@@ -57,7 +60,8 @@ Because the human tracing is imperfect, two points designed to be at the same in
 
 On the other layers, you can add additional, non-interactive features like rivers, rail lines, parks, or well known landmarks. Here there is only a segment on the Thames.
 
-Example usage: python create_adj_map.py ../public/map.svg
+Example usage: Create an SVG as described above, then run
+`python create_adj_map.py ../public/map.svg`
 
 Dependencies: json, networkx, argparse. Install with pip (Python package manager)
 

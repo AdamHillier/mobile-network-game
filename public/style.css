@@ -7,6 +7,7 @@ html, body {
 body {
 	background-color: #011829;
 	color: #003e77;
+	font-family: Arial, sans-serif;
 }
 
 #container {
@@ -29,7 +30,7 @@ body {
 
 .range-indicator {
 	fill:#9b694a;
-	fill-opacity:0.07;
+	fill-opacity:0.15;
 }
 
 circle.load-ring-background {
@@ -61,12 +62,12 @@ circle.load-ring-cover {
 	position:absolute;
 	left: 0;
 	bottom: 0;
-	height: 60px;
+	height: 75px;
 	width: 100%;
 	background-color: #01111d;
 }
 
-#balanceDisplay, #buttons, #status, #volume {
+#balanceDisplay, #timeDisplay, #buttons, #status, #volume {
 	display: inline-block;
 	vertical-align: middle;
 }
@@ -78,8 +79,13 @@ circle.load-ring-cover {
 	text-align:center;
 }
 
+#timeDisplay {
+	width:10%;
+}
+
 #buttons {
-	width:20%;
+	width:15%;
+	margin-top:3px;
 }
 
 .placeTower {
@@ -104,15 +110,18 @@ circle.load-ring-cover {
 	width: 50px;
 	margin: 5px;
 	cursor: pointer;
+	font-size: 14px;
+	color: #003e77;
 }
 
 #buttons > button:hover {
 	background-color: #0167c4;
+	color: #0167c4;
 }
 
-.placeTower p {
+.btn-price {
 	position: relative;
-	bottom: 18px;
+	bottom: 12px;
 	padding: 0;
 	margin: 0;
 	color: #efa000;
@@ -120,8 +129,17 @@ circle.load-ring-cover {
 	font-weight: bold;
 }
 
+.btn-label {
+	position: relative;
+	bottom: -20px;
+	width: 100%;
+	text-align: center;
+	padding:0;
+	margin:0;
+}
+
 #status {
-	width: 40%;
+	width: 35%;
 }
 
 #explanation, #balanceNotEnough {
@@ -148,44 +166,22 @@ circle.load-ring-cover {
 	vertical-align: middle;
 }
 
-body {
-    font-family: Calibri, sans-serif;
-    font-size: large;
-    min-height: 300px;
-    min-width: 400px;
-}
 
-.keySprite, h1 {
-    font-size: xx-large;
-}
-.keySprite {
-    line-height: 20px;
-    position: relative;
-    top: 4.5px;
-}
-#info {
-    display: none;
-    float: right;
-    max-width: 33%;
+h1, h2 {
+    text-align:center;
+    font-family: Georgia, serif;
+    font-variant: small-caps;
+    letter-spacing: 0.07em;
 }
 
 h1 {
-    color: grey;
-    margin-right: 1em;
+	margin-top:0;
 }
 
-#monthDisplay, #timeDisplay {
-    font-size: large;
-    font-weight: bold;
-}
-#gameOver {
-    color: red;
-    display: none;
+h2 {
+	margin-bottom:0;
 }
 
-.monthly {
-    display: none;
-}
 .screen {
     position: absolute;
     top: 50%;
@@ -193,35 +189,79 @@ h1 {
     left: 50%;
     max-width: 80%;
     transform: translate(-50%, -50%);
-    border: solid;
-    visibility: hidden;
-    background: #ffffff;
-    overflow-y: scroll;
+    display: none;
+    background: #0167c4;
+    box-shadow: 0 0px 20px 10px rgba(0, 0, 0, 0.5);
+    color: #000811;
+    font-size: 18px;
+    text-shadow: 0 1px #0378d8;
+    border: 3px solid #18e;
+    overflow-y: auto;
 }
 .screen > p {
     text-align: center;
-    font-size: 18px;
     margin: 10px 10px;
-    font-weight: bold;
 }
-.screen > button {
+.screen button {
     display: block;
-    margin: 10px auto;
-    font-size: 18px;
-    background-color: #ffffff;
-    border: 4px solid #173e7c;
+    margin: 10px auto 15px;
+    padding: 5px 10px;
+    background-color: #00d6d6;
+    border: 1px solid #009393;
+    border-radius: 3px;
+    box-shadow: 0 1px rgba(255, 255, 255, 0.5) inset, 0 3px #009393;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    text-shadow: 0 1px rgba(255, 255, 255, 0.3);
+    color: inherit;
+    transition: all 0.3s ease;
 }
+
+.screen button:hover {
+	transition: all 0.3s ease;
+	background-color: #00b6b6;
+	box-shadow: 0 1px rgba(255, 255, 255, 0.3) inset, 0 3px #008383;
+	text-shadow: 0 1px rgba(255, 255, 255, 0.2);
+}
+
+.screen .money {
+	color:#e19704;
+}
+
+.screen .succ {
+	color:#00e000;
+}
+
+.screen .fail {
+	color:#ef1900;
+}
+
+.screen input {
+	padding: 4px 6px 5px;
+	border: 3px solid #1188ee;
+	outline-style: none;
+	font-size: inherit;
+	color: #257;
+	transition: border-color 0.5s ease;
+}
+
+.screen input:focus {
+	border-color:#3af;
+	transition: border-color 0.5s ease;
+}
+
+.screen img {
+	height: 20px;
+}
+
 #submitForm {
-    text-align: center;
+	text-align: center;
 }
-#submitForm > input {
-    display: inline;
-    font-size: 18px;
-    padding: 10px, 10px, 10px, 10px;
-    font-weight: bold;
-}
+
 #formSubmit {
-    font-size: 20px;
-    background-color: #ffffff;
-    border: 4px solid #173e7c;
+    display: inline;
+    margin-left: 5px;
+    margin-top: 0;
 }

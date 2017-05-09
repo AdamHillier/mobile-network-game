@@ -92,9 +92,9 @@
     var currentPendingAction = pendingActions.none;
 
     var spriteCallStatus = {
-        none: "#0167c4",
-        dialing: "#ff7795",
-        dialingPulse: "#783b77",
+        none: "#aaa",
+		dialing: "#ffffff",
+        dialingPulse: "#491249",
         success: "#0f0",
         failure: "#f00"
     };
@@ -138,14 +138,14 @@
 
     function showStart() {
         svg.style.filter = "blur(5px)";
-        document.getElementById("start-screen").style.visibility = "visible";
+        document.getElementById("start-screen").style.display = "block";
     }
 
     function hideScreen() {
         svg.style.filter = "blur(0px)";
         var screens = document.getElementsByClassName("screen");
         for (var i = 0; i < screens.length; i++) {
-            screens[i].style.visibility = "hidden";
+            screens[i].style.display = "none";
         }
         startTimer();
     }
@@ -175,7 +175,12 @@
                 }
             }
         }, false);
-        document.getElementById("end-screen").style.visibility = "visible";
+        document.getElementById("restart-btn").onclick = function() {
+            // Simple solution: just reloads the page. Forces a non-cache reload to get around
+            // a buggy implementation of location.reload in Safari.
+            window.location.reload(true);
+        };
+        document.getElementById("end-screen").style.display = "block";
     }
 
     function unpause() {
@@ -195,7 +200,7 @@
             setFailedCalls(0);
         };
 
-        document.getElementById("monthly-screen").style.visibility = "visible";
+        document.getElementById("monthly-screen").style.display = "block";
     }
 //
 
@@ -625,10 +630,16 @@
     function incrementTowerPrice(by) {
         setTowerPrice(getTowerPrice()+by);
     }
+    var maintenancePerTower;
+    setMaintenance(5);
+    function setMaintenance(newCost) {
+        maintenancePerTower = newCost;
+        fillElemsOfClass("maintenance-per-tower-display", newCost);
+    }
     function maintainTowers() {
-        var cost = towers.length * 5;
+        var cost = towers.length * maintenancePerTower;
         setBalance(getBalance() - cost);
-        fillElemsOfClass("maintenance-display", cost);
+        fillElemsOfClass("maintenance-bill-display", cost);
         return cost;
     }
 
